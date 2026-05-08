@@ -1,6 +1,7 @@
 package org.kostlink.view;
 
 import org.kostlink.core.BasePage;
+import javafx.geometry.Pos; // Tambahkan import ini
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -16,6 +17,11 @@ public class RegisterPage extends BasePage {
 
     @Override
     public void setupComponents() {
+        // --- PENTING: Atur Layout agar rapi ke tengah ---
+        this.layout.setSpacing(15);
+        this.layout.setAlignment(Pos.CENTER);
+        this.layout.setStyle("-fx-background-color: #2D033B;"); // Samakan dengan LoginPage
+
         lblTitle = new Label("DAFTAR AKUN KOSTLINK");
         lblTitle.setTextFill(Color.WHITE);
         lblTitle.setFont(Font.font("System", FontWeight.BOLD, 24));
@@ -37,16 +43,16 @@ public class RegisterPage extends BasePage {
 
         btnRegister = new Button("DAFTAR SEKARANG");
         btnRegister.setMinWidth(300);
-        btnRegister.setStyle("-fx-background-color: #C147E9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10;");
+        btnRegister.setStyle("-fx-background-color: #C147E9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10; -fx-cursor: hand;");
 
         linkBack = new Hyperlink("Sudah punya akun? Login");
         linkBack.setTextFill(Color.LIGHTBLUE);
 
-        this.layout.getChildren().addAll(lblTitle, txtUsername, txtPassword, txtConfirmPassword, btnRegister, linkBack);
+        this.layout.getChildren().setAll(lblTitle, txtUsername, txtPassword, txtConfirmPassword, btnRegister, linkBack);
     }
 
-    // Getter untuk mengambil data saat tombol daftar diklik
-    public String getUsername() { return txtUsername.getText(); }
+    // Getter dengan .trim() untuk mencegah error login karena spasi
+    public String getUsername() { return txtUsername.getText().trim(); }
     public String getPassword() { return txtPassword.getText(); }
     public String getConfirmPassword() { return txtConfirmPassword.getText(); }
     public Hyperlink getLinkBack() { return linkBack; }

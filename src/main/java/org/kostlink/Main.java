@@ -2,105 +2,104 @@ package org.kostlink;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.scene.control.Alert;
-import org.kostlink.view.DashboardPage;
-import org.kostlink.view.LoginPage;
-import org.kostlink.view.RegisterPage;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+import org.kostlink.view.*;
 import java.util.HashMap;
 
 public class Main extends Application {
 
     private static Stage stage;
+    private static Scene mainScene;
     private static HashMap<String, String> userDatabase = new HashMap<>();
+
+    private static String sessionUser = "";
+    private static String namaLengkapPenghuni = "";
+    private static String nomorKamarPenghuni = "-";
+    private static boolean statusAktif = false;
 
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        // Data Login Testing
+        userDatabase.put("admin", "admin123");
+        userDatabase.put("zaskiah", "123");
 
-        // AGAR TIDAK NGEZOOM: Buat jendela otomatis maksimal sesuai layar laptop
+        mainScene = new Scene(new Pane());
+        stage.setScene(mainScene);
         stage.setMaximized(true);
 
-        userDatabase.put("admin", "admin123");
         showLogin();
+        stage.show();
+    }
+
+    public static void setRoot(Pane layoutPane, String title) {
+        mainScene.setRoot(layoutPane);
+        stage.setTitle(title);
+        stage.setMaximized(true);
     }
 
     public static void showLogin() {
         LoginPage loginPage = new LoginPage();
-        loginPage.getLinkDaftar().setOnAction(e -> showRegister());
-
+        loginPage.setupComponents();
         loginPage.getBtnLogin().setOnAction(e -> {
-            String user = loginPage.getUsername();
-            String pass = loginPage.getPassword();
-
-            if (userDatabase.containsKey(user) && userDatabase.get(user).equals(pass)) {
+            if (userDatabase.containsKey(loginPage.getUsername()) &&
+                    userDatabase.get(loginPage.getUsername()).equals(loginPage.getPassword())) {
+                sessionUser = loginPage.getUsername();
                 showDashboard();
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Login Gagal");
-                alert.setHeaderText(null);
-                alert.setContentText("Akun tidak ditemukan atau password salah!");
-                alert.initOwner(stage); // Alert menempel pada jendela utama
-                alert.showAndWait();
+                showAlert("Username atau Password salah!");
             }
         });
-
-        // Scene dibuat tanpa angka kaku agar responsif
-        Scene scene = new Scene(loginPage.getLayout());
-        stage.setTitle("KOSTLINK - Login");
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    public static void showRegister() {
-        RegisterPage regPage = new RegisterPage();
-        regPage.getLinkBack().setOnAction(e -> showLogin());
-
-        regPage.getBtnRegister().setOnAction(e -> {
-            String user = regPage.getUsername();
-            String pass = regPage.getPassword();
-            String confirm = regPage.getConfirmPassword();
-
-            if (!user.isEmpty() && !pass.isEmpty() && pass.equals(confirm)) {
-                userDatabase.put(user, pass);
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Registrasi Berhasil");
-                alert.setHeaderText(null);
-                alert.setContentText("Akun " + user + " berhasil didaftarkan.");
-                alert.initOwner(stage);
-                alert.showAndWait();
-                showLogin();
-            } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Registrasi Gagal");
-                alert.setHeaderText(null);
-                alert.setContentText("Periksa kembali inputan Anda.");
-                alert.initOwner(stage);
-                alert.showAndWait();
-            }
-        });
-
-        Scene scene = new Scene(regPage.getLayout());
-        stage.setTitle("KOSTLINK - Register Akun");
-        stage.setScene(scene);
-        stage.show();
+        setRoot(loginPage.getLayout(), "KOSTLINK - Login");
     }
 
     public static void showDashboard() {
-        DashboardPage dashboard = new DashboardPage();
+        // Membuat view Dashboard
+        DashboardPage dbPage = new DashboardPage(sessionUser, namaLengkapPenghuni, nomorKamarPenghuni, statusAktif);
 
-        dashboard.getBtnLogout().setOnAction(e -> {
-            System.out.println("User Logout...");
-            showLogin();
+        // Menghubungkan DashboardPage dengan Controller-nya
+        new DashboardController(dbPage);
+
+        // Logika khusus klik Nama User (Profil)
+        dbPage.getLblUser().setOnMouseClicked(e -> {
+            if (statusAktif) showHomePenghuni();
+            else showFormulir();
         });
 
-        Scene scene = new Scene(dashboard.getLayout());
-        stage.setTitle("KOSTLINK - Dashboard");
-        stage.setScene(scene);
-        stage.show();
+        setRoot(dbPage.getLayout(), "KOSTLINK - Dashboard");
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    public static void showFormulir() {
+        FormPenghuniPage formPage = new FormPenghuniPage();
+        formPage.setupComponents();
+        formPage.getBtnBatal().setOnAction(e -> showDashboard());
+        formPage.getBtnKonfirmasi().setOnAction(e -> {
+            if (!formPage.getNamaLengkap().isEmpty()) {
+                namaLengkapPenghuni = formPage.getNamaLengkap();
+                nomorKamarPenghuni = formPage.getNoKamar();
+                statusAktif = true;
+                showDashboard();
+            }
+        });
+        setRoot(formPage.getLayout(), "KOSTLINK - Lengkapi Data");
     }
+
+    public static void showHomePenghuni() {
+        HomePenghuniPage profilePage = new HomePenghuniPage(namaLengkapPenghuni, sessionUser, nomorKamarPenghuni);
+        profilePage.getBtnBack().setOnAction(e -> showDashboard());
+        setRoot(profilePage.getLayout(), "KOSTLINK - Profil Penghuni");
+    }
+
+    // Method bantuan untuk navigasi dari Controller
+    public static void backToLogin() { showLogin(); }
+    public static void goToFormulir() { showFormulir(); }
+
+    private static void showAlert(String msg) {
+        Alert a = new Alert(Alert.AlertType.WARNING, msg);
+        a.show();
+    }
+
+    public static void main(String[] args) { launch(args); }
 }
