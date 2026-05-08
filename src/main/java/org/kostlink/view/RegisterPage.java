@@ -17,7 +17,7 @@ public class RegisterPage extends BasePage {
 
     @Override
     public void setupComponents() {
-        // --- PENTING: Atur Layout agar rapi ke tengah ---
+        // Atur Layout agar rapi
         this.layout.setSpacing(15);
         this.layout.setAlignment(Pos.CENTER);
         this.layout.setStyle("-fx-background-color: #2D033B;"); // Samakan dengan LoginPage

@@ -19,7 +19,7 @@ public class DashboardPage extends BasePage {
     private Label lblUser;
     private Button btnLogout, btnLengkapiData;
 
-    // Tambahkan btnLaporan di sini
+    // Tambahkan btn
     private Button btnDashboard, btnKontrak, btnTagihan, btnLaporan, btnPengaturan;
 
     public DashboardPage(String username, String namaAsli, String noKamar, boolean isAktif) {
@@ -55,7 +55,7 @@ public class DashboardPage extends BasePage {
         btnDashboard = createMenuButton("🏠  Dashboard");
         btnKontrak = createMenuButton("📄  Kontrak Saya");
         btnTagihan = createMenuButton("💰  Riwayat Tagihan");
-        btnLaporan = createMenuButton("⚠️  Laporan/Keluhan"); // Tombol Baru
+        btnLaporan = createMenuButton("⚠️  Laporan/Keluhan");
         btnPengaturan = createMenuButton("⚙️  Pengaturan");
 
         menuBox.getChildren().addAll(btnDashboard, btnKontrak, btnTagihan, btnLaporan, btnPengaturan);

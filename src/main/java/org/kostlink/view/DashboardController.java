@@ -27,7 +27,7 @@ public class DashboardController {
         // Event Tombol Laporan Baru
         view.getBtnLaporan().setOnAction(e -> {
             System.out.println("Klik: Halaman Laporan/Keluhan");
-            // Main.showLaporan(); // Panggil method di Main jika sudah dibuat
+
         });
 
         view.getBtnPengaturan().setOnAction(e -> {
@@ -39,7 +39,7 @@ public class DashboardController {
             Main.backToLogin();
         });
 
-        // Tombol Lengkapi Data (jika ada)
+        // Tombol Lengkapi Data
         if (view.getBtnLengkapiData() != null) {
             view.getBtnLengkapiData().setOnAction(e -> {
                 Main.goToFormulir();
