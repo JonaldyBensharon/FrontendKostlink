@@ -12,6 +12,7 @@ public class Main extends Application {
 
     private static Stage stage;
     private static Scene mainScene;
+    // Database sementara untuk menyimpan user admin dan hasil registrasi
     private static HashMap<String, String> userDatabase = new HashMap<>();
 
     private static String sessionUser = "";
@@ -43,6 +44,8 @@ public class Main extends Application {
     public static void showLogin() {
         LoginPage loginPage = new LoginPage();
         loginPage.setupComponents();
+
+        // Logika Tombol Login
         loginPage.getBtnLogin().setOnAction(e -> {
             if (userDatabase.containsKey(loginPage.getUsername()) &&
                     userDatabase.get(loginPage.getUsername()).equals(loginPage.getPassword())) {
@@ -52,17 +55,45 @@ public class Main extends Application {
                 showAlert("Username atau Password salah!");
             }
         });
+
+        // Menambahkan aksi klik pada "Belum punya akun? Daftar di sini"
+        loginPage.getLinkDaftar().setOnAction(e -> {
+            showRegister();
+        });
+
         setRoot(loginPage.getLayout(), "KOSTLINK - Login");
     }
 
-    public static void showDashboard() {
-        // Membuat view Dashboard
-        DashboardPage dbPage = new DashboardPage(sessionUser, namaLengkapPenghuni, nomorKamarPenghuni, statusAktif);
+    // Tambahkan Method showRegister ini agar bisa pindah ke halaman daftar
+    public static void showRegister() {
+        RegisterPage regPage = new RegisterPage();
+        regPage.setupComponents();
 
-        // Menghubungkan DashboardPage dengan Controller-nya
+        // Logika ketika user mengklik tombol daftar di halaman Register
+        regPage.getBtnRegister().setOnAction(e -> {
+            String userBaru = regPage.getUsername();
+            String passBaru = regPage.getPassword();
+
+            if (!userBaru.isEmpty() && !passBaru.isEmpty()) {
+                // Memasukkan data baru ke HashMap agar bisa digunakan login
+                userDatabase.put(userBaru, passBaru);
+                showAlert("Registrasi Berhasil! Silakan Login.");
+                showLogin();
+            } else {
+                showAlert("Username dan Password tidak boleh kosong!");
+            }
+        });
+
+        // Tombol kembali ke Login
+        regPage.getBtnBack().setOnAction(e -> showLogin());
+
+        setRoot(regPage.getLayout(), "KOSTLINK - Registrasi");
+    }
+
+    public static void showDashboard() {
+        DashboardPage dbPage = new DashboardPage(sessionUser, namaLengkapPenghuni, nomorKamarPenghuni, statusAktif);
         new DashboardController(dbPage);
 
-        // Logika khusus klik Nama User (Profil)
         dbPage.getLblUser().setOnMouseClicked(e -> {
             if (statusAktif) showHomePenghuni();
             else showFormulir();
@@ -92,12 +123,11 @@ public class Main extends Application {
         setRoot(profilePage.getLayout(), "KOSTLINK - Profil Penghuni");
     }
 
-    // Method bantuan untuk navigasi dari Controller
     public static void backToLogin() { showLogin(); }
     public static void goToFormulir() { showFormulir(); }
 
     private static void showAlert(String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING, msg);
+        Alert a = new Alert(Alert.AlertType.INFORMATION, msg);
         a.show();
     }
 

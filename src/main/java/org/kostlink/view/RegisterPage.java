@@ -1,7 +1,7 @@
 package org.kostlink.view;
 
 import org.kostlink.core.BasePage;
-import javafx.geometry.Pos; // Tambahkan import ini
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -17,10 +17,9 @@ public class RegisterPage extends BasePage {
 
     @Override
     public void setupComponents() {
-        // Atur Layout agar rapi
         this.layout.setSpacing(15);
         this.layout.setAlignment(Pos.CENTER);
-        this.layout.setStyle("-fx-background-color: #2D033B;"); // Samakan dengan LoginPage
+        this.layout.setStyle("-fx-background-color: #2D033B;");
 
         lblTitle = new Label("DAFTAR AKUN KOSTLINK");
         lblTitle.setTextFill(Color.WHITE);
@@ -51,10 +50,11 @@ public class RegisterPage extends BasePage {
         this.layout.getChildren().setAll(lblTitle, txtUsername, txtPassword, txtConfirmPassword, btnRegister, linkBack);
     }
 
-    // Getter dengan .trim() untuk mencegah error login karena spasi
     public String getUsername() { return txtUsername.getText().trim(); }
     public String getPassword() { return txtPassword.getText(); }
     public String getConfirmPassword() { return txtConfirmPassword.getText(); }
-    public Hyperlink getLinkBack() { return linkBack; }
     public Button getBtnRegister() { return btnRegister; }
+
+    // Getter tambahan
+    public Hyperlink getBtnBack() { return linkBack; }
 }
