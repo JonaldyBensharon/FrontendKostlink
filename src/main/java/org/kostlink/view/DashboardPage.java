@@ -1,5 +1,6 @@
 package org.kostlink.view;
 
+import org.kostlink.Main;
 import org.kostlink.core.BasePage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,14 +20,22 @@ public class DashboardPage extends BasePage {
     private Label lblUser;
     private Button btnLogout, btnLengkapiData;
 
-    // Tambahkan btn
+    // Tombol Sidebar Asli
     private Button btnDashboard, btnKontrak, btnTagihan, btnLaporan, btnPengaturan;
 
+    // --- SEED KODE BARU: Komponen Tambahan untuk Fitur Bayar Terintegrasi ---
+    private Button btnBayarSekarang;
+    private VBox contentArea; // Diubah menjadi variabel class agar bisa di-get oleh Controller
+    private boolean isSudahBayar; // Menyimpan state status bayar dinamis
+
+    // Konstruktor diperbarui agar menerima status pembayaran dari Main
     public DashboardPage(String username, String namaAsli, String noKamar, boolean isAktif) {
         this.username = (username == null || username.isEmpty()) ? "User" : username;
         this.namaAsli = (namaAsli == null) ? "" : namaAsli;
         this.noKamar = (noKamar == null || noKamar.isEmpty()) ? "-" : noKamar;
         this.isAktif = isAktif;
+        // Ambil status bayar dari database global di Main untuk menentukan warna kartu UI
+        this.isSudahBayar = Main.getIsSudahBayar();
         setupComponents();
     }
 
@@ -39,7 +48,7 @@ public class DashboardPage extends BasePage {
         mainContainer.setAlignment(Pos.TOP_LEFT);
         mainContainer.setPrefSize(2000, 2000);
 
-        // --- SIDEBAR ---
+        // --- SIDEBAR (Asli & Utuh) ---
         VBox sidebar = new VBox(25);
         sidebar.setMinWidth(260);
         sidebar.setMaxWidth(260);
@@ -66,7 +75,7 @@ public class DashboardPage extends BasePage {
         HBox.setHgrow(rightSide, Priority.ALWAYS);
         rightSide.setStyle("-fx-background-color: #F8F9FA;");
 
-        // Top Bar
+        // Top Bar (Asli & Utuh)
         HBox topBar = new HBox(15);
         topBar.setAlignment(Pos.CENTER_RIGHT);
         topBar.setPadding(new Insets(15, 40, 15, 40));
@@ -81,12 +90,13 @@ public class DashboardPage extends BasePage {
         btnLogout.setStyle("-fx-background-color: #FF4B4B; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 8;");
         topBar.getChildren().addAll(lblUser, btnLogout);
 
-        VBox contentArea = new VBox(30);
+        // Menggunakan variabel global class agar tidak conflict
+        contentArea = new VBox(30);
         contentArea.setPadding(new Insets(40));
         VBox.setVgrow(contentArea, Priority.ALWAYS);
 
         if (!isAktif) {
-            // Tampilan Welcome Card (Data Belum Lengkap)
+            // Tampilan Welcome Card (Data Belum Lengkap) - Asli & Utuh
             contentArea.setAlignment(Pos.CENTER);
             VBox welcomeCard = new VBox(25);
             welcomeCard.setAlignment(Pos.CENTER);
@@ -117,14 +127,17 @@ public class DashboardPage extends BasePage {
             statsRow.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(statsRow, Priority.ALWAYS);
 
-            // Logika Hitung Jatuh Tempo (1 Bulan dari Sekarang)
+            // Logika Hitung Jatuh Tempo (Asli)
             LocalDate jatuhTempoDate = LocalDate.now().plusMonths(1);
             String formattedDate = jatuhTempoDate.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
 
+            // --- PERUBAHAN DINAMIS: Mengubah teks status sewa berdasarkan data bayar ---
+            String txtStatusSewa = isSudahBayar ? "Aktif (Lunas)" : "Menunggu Pembayaran";
+
             statsRow.getChildren().addAll(
                     createStatCard("Kamar Anda", "Kamar " + noKamar, "🏠"),
-                    createStatCard("Status Sewa", "Aktif", "💳"),
-                    createStatCard("Jatuh Tempo", formattedDate, "📅") // Perubahan di sini
+                    createStatCard("Status Sewa", txtStatusSewa, "💳"),
+                    createStatCard("Jatuh Tempo", formattedDate, "📅")
             );
 
             VBox tableArea = new VBox(15);
@@ -135,10 +148,51 @@ public class DashboardPage extends BasePage {
 
             Label lblTable = new Label("Tagihan Terakhir & Riwayat Pembayaran");
             lblTable.setFont(Font.font("System", FontWeight.BOLD, 18));
-            StackPane emptyState = new StackPane(new Label("Belum ada data tagihan"));
-            VBox.setVgrow(emptyState, Priority.ALWAYS);
+            tableArea.getChildren().addAll(lblTable, new Separator());
 
-            tableArea.getChildren().addAll(lblTable, new Separator(), emptyState);
+            // --- PEMBARUAN UTAMA: Mengganti komponen 'Belum ada data' dengan Box Tagihan Dinamis ---
+            if (!isSudahBayar) {
+                // Desain Box ketika pengguna BELUM BAYAR (Berwarna merah muda halus)
+                HBox tagihanBox = new HBox(20);
+                tagihanBox.setAlignment(Pos.CENTER_LEFT);
+                tagihanBox.setPadding(new Insets(15));
+                tagihanBox.setStyle("-fx-background-color: #FFF5F5; -fx-border-color: #FFCCCC; -fx-background-radius: 10; -fx-border-radius: 10;");
+
+                VBox infoTagihan = new VBox(5);
+                Label lblBulan = new Label("Tagihan Bulan Ini (Kamar " + noKamar + ")");
+                lblBulan.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+                Label lblStatus = new Label("Status: BELUM BAYAR");
+                lblStatus.setTextFill(Color.RED);
+                lblStatus.setStyle("-fx-font-weight: bold;");
+                infoTagihan.getChildren().addAll(lblBulan, lblStatus);
+
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                // Tombol aksi transaksi digital untuk Controller
+                btnBayarSekarang = new Button("Bayar Sekarang 💰");
+                btnBayarSekarang.setStyle("-fx-background-color: #FF4B4B; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20; -fx-background-radius: 8;");
+
+                tagihanBox.getChildren().addAll(infoTagihan, spacer, btnBayarSekarang);
+                tableArea.getChildren().add(tagihanBox);
+            } else {
+                // Desain Box ketika pengguna SUDAH LUNAS (Berwarna hijau segar halus)
+                HBox tagihanBox = new HBox(20);
+                tagihanBox.setAlignment(Pos.CENTER_LEFT);
+                tagihanBox.setPadding(new Insets(15));
+                tagihanBox.setStyle("-fx-background-color: #F0FDF4; -fx-border-color: #BBF7D0; -fx-background-radius: 10; -fx-border-radius: 10;");
+
+                VBox infoTagihan = new VBox(5);
+                Label lblBulan = new Label("Tagihan Bulan Ini (Kamar " + noKamar + ")");
+                lblBulan.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+                Label lblStatus = new Label("Status: LUNAS / TERVERIFIKASI");
+                lblStatus.setTextFill(Color.GREEN);
+                lblStatus.setStyle("-fx-font-weight: bold;");
+                infoTagihan.getChildren().addAll(lblBulan, lblStatus);
+
+                tableArea.getChildren().add(tagihanBox);
+            }
+
             contentArea.getChildren().addAll(lblTitle, statsRow, tableArea);
         }
 
@@ -172,18 +226,23 @@ public class DashboardPage extends BasePage {
         Label lblT = new Label(title);
         lblT.setTextFill(Color.GRAY);
         Label lblV = new Label(value);
-        lblV.setFont(Font.font("System", FontWeight.BOLD, 18)); // Ukuran sedikit dikecilkan agar tanggal panjang muat
+        lblV.setFont(Font.font("System", FontWeight.BOLD, 18));
         card.getChildren().addAll(lblIcon, lblT, lblV);
         return card;
     }
 
-    // GETTERS
+    // --- GETTERS (Dipertahankan dan ditambah Getter baru untuk mencegah Error Enkapsulasi) ---
     public Button getBtnDashboard() { return btnDashboard; }
     public Button getBtnKontrak() { return btnKontrak; }
     public Button getBtnTagihan() { return btnTagihan; }
-    public Button getBtnLaporan() { return btnLaporan; } // Getter Baru
+    public Button getBtnLaporan() { return btnLaporan; }
     public Button getBtnPengaturan() { return btnPengaturan; }
     public Button getBtnLogout() { return btnLogout; }
     public Button getBtnLengkapiData() { return btnLengkapiData; }
     public Label getLblUser() { return lblUser; }
+
+    // GETTER BARU UNTUK KEBUTUHAN DASHBOARD CONTROLLER
+    public Button getBtnBayarSekarang() { return btnBayarSekarang; }
+    public VBox getContentArea() { return contentArea; }
+    public String getNoKamar() { return noKamar; }
 }

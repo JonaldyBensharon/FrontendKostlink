@@ -20,6 +20,9 @@ public class Main extends Application {
     private static String nomorKamarPenghuni = "-";
     private static boolean statusAktif = false;
 
+    // --- FITUR BARU: State Pembayaran Tagihan Global ---
+    private static boolean isSudahBayar = false;
+
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
@@ -121,6 +124,15 @@ public class Main extends Application {
         HomePenghuniPage profilePage = new HomePenghuniPage(namaLengkapPenghuni, sessionUser, nomorKamarPenghuni);
         profilePage.getBtnBack().setOnAction(e -> showDashboard());
         setRoot(profilePage.getLayout(), "KOSTLINK - Profil Penghuni");
+    }
+
+    // --- FITUR BARU: GETTER & SETTER GLOBAL UNTUK SINKRONISASI STATUS BAYAR ---
+    public static boolean getIsSudahBayar() {
+        return isSudahBayar;
+    }
+
+    public static void setIsSudahBayar(boolean status) {
+        isSudahBayar = status;
     }
 
     public static void backToLogin() { showLogin(); }
