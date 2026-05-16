@@ -8,6 +8,8 @@ import javafx.scene.layout.*;
 
 public class PengaturanPage extends BasePage {
     private Button btnSimpanSesi;
+    private CheckBox chkDarkMode;
+    private CheckBox chkNotif;
 
     public PengaturanPage() {
         setupComponents();
@@ -28,10 +30,9 @@ public class PengaturanPage extends BasePage {
         boxSetting.setMaxWidth(700);
         boxSetting.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #E0E0E0;");
 
-        CheckBox chkNotif = new CheckBox("Aktifkan Pengingat WhatsApp otomatis saat jatuh tempo");
+        chkNotif = new CheckBox("Aktifkan Pengingat WhatsApp otomatis saat jatuh tempo");
         chkNotif.setSelected(true);
-
-        CheckBox chkDarkMode = new CheckBox("Gunakan Mode Gelap (Dark Mode)");
+        chkDarkMode = new CheckBox("Gunakan Mode Gelap (Dark Mode)");
 
         btnSimpanSesi = new Button("Simpan Pengaturan");
         btnSimpanSesi.setStyle("-fx-background-color: #2D033B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-cursor: hand;");
@@ -40,5 +41,17 @@ public class PengaturanPage extends BasePage {
         this.layout.getChildren().addAll(lblTitle, new Separator(), boxSetting);
     }
 
-    public Button getBtnSimpanSesi() { return btnSimpanSesi; }
+    // --- GETTERS ---
+    public Button getBtnSimpanSesi() {
+        return btnSimpanSesi;
+    }
+
+    // 3. TAMBAHKAN FUNGSI GETTER INI AGAR CONTROLLER BISA MEMBACA STATUS CENTANGNYA
+    public CheckBox getChkDarkMode() {
+        return chkDarkMode;
+    }
+
+    public CheckBox getChkNotif() {
+        return chkNotif;
+    }
 }

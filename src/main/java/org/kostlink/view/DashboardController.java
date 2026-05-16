@@ -2,7 +2,6 @@ package org.kostlink.view;
 
 import org.kostlink.Main;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.VBox;
 
 public class DashboardController {
@@ -17,16 +16,16 @@ public class DashboardController {
         // 1. Menu Sidebar: Dashboard (Refresh Halaman Beranda Utama)
         view.getBtnDashboard().setOnAction(e -> Main.showDashboard());
 
-        // 2. Menu Sidebar: Kontrak Saya (Dinamis Baru)
+        // 2. Menu Sidebar: Kontrak Saya
         view.getBtnKontrak().setOnAction(e -> tampilkanHalamanKontrak());
 
-        // 3. Menu Sidebar: Riwayat Tagihan (Sudah jalan)
+        // 3. Menu Sidebar: Riwayat Tagihan
         view.getBtnTagihan().setOnAction(e -> tampilkanHalamanTagihan());
 
-        // 4. Menu Sidebar: Laporan/Keluhan (Dinamis Baru)
+        // 4. Menu Sidebar: Laporan/Keluhan
         view.getBtnLaporan().setOnAction(e -> tampilkanHalamanLaporan());
 
-        // 5. Menu Sidebar: Pengaturan (Dinamis Baru)
+        // 5. Menu Sidebar: Pengaturan
         view.getBtnPengaturan().setOnAction(e -> tampilkanHalamanPengaturan());
 
         // Tombol Logout
@@ -37,7 +36,7 @@ public class DashboardController {
             view.getBtnLengkapiData().setOnAction(e -> Main.goToFormulir());
         }
 
-        // Proteksi Tombol Bayar Sekarang di Beranda Utama
+        // AKSI JALUR UTAMA: Hubungkan tombol bayar jika ia sedang tampil di halaman depan
         if (view.getBtnBayarSekarang() != null) {
             view.getBtnBayarSekarang().setOnAction(e -> eksekusiAlurBayar());
         }
@@ -53,9 +52,19 @@ public class DashboardController {
 
     private void tampilkanHalamanTagihan() {
         TagihanPage tagihanPage = new TagihanPage(view.getNoKamar(), Main.getIsSudahBayar());
+
+        // AKSI JALUR CADANGAN: Hubungkan juga tombol bayar jika pengguna membukanya lewat menu sidebar
         if (tagihanPage.getBtnBayarSekarang() != null) {
             tagihanPage.getBtnBayarSekarang().setOnAction(e -> eksekusiAlurBayar());
         }
+
+        // --- PENAMBAHAN LOGIKA: Klik Tombol Detail Pembayaran pada Riwayat Tagihan ---
+        if (tagihanPage.getBtnDetailBayar() != null) {
+            tagihanPage.getBtnDetailBayar().setOnAction(e -> {
+                TagihanPage.tampilkanPopUpDetailInvoice(view.getNoKamar());
+            });
+        }
+
         VBox contentArea = view.getContentArea();
         contentArea.getChildren().setAll(tagihanPage.getLayout());
     }
@@ -63,7 +72,6 @@ public class DashboardController {
     private void tampilkanHalamanLaporan() {
         LaporanPage laporanPage = new LaporanPage();
 
-        // Tambahkan logika ketika tombol kirim keluhan di halaman laporan diklik
         laporanPage.getBtnKirimLaporan().setOnAction(e -> {
             if (!laporanPage.getTxtKeluhan().getText().trim().isEmpty()) {
                 Alert success = new Alert(Alert.AlertType.INFORMATION, "Laporan Anda berhasil dikirim ke pengelola kost! 🚀");
@@ -81,8 +89,6 @@ public class DashboardController {
 
     private void tampilkanHalamanPengaturan() {
         PengaturanPage pengaturanPage = new PengaturanPage();
-
-        // Logika tombol simpan pengaturan
         pengaturanPage.getBtnSimpanSesi().setOnAction(e -> {
             Alert success = new Alert(Alert.AlertType.INFORMATION, "Pengaturan berhasil diperbarui!");
             success.show();

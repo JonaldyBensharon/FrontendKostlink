@@ -19,8 +19,6 @@ public class Main extends Application {
     private static String namaLengkapPenghuni = "";
     private static String nomorKamarPenghuni = "-";
     private static boolean statusAktif = false;
-
-    // --- FITUR BARU: State Pembayaran Tagihan Global ---
     private static boolean isSudahBayar = false;
 
     @Override
@@ -94,7 +92,7 @@ public class Main extends Application {
     }
 
     public static void showDashboard() {
-        DashboardPage dbPage = new DashboardPage(sessionUser, namaLengkapPenghuni, nomorKamarPenghuni, statusAktif);
+        DashboardPage dbPage = new DashboardPage(sessionUser, namaLengkapPenghuni, nomorKamarPenghuni, statusAktif, 16);
         new DashboardController(dbPage);
 
         dbPage.getLblUser().setOnMouseClicked(e -> {
