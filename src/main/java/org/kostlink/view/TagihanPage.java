@@ -142,8 +142,9 @@ public class TagihanPage extends BasePage {
         grid.setHgap(15);
         grid.setVgap(12);
 
-        // Penggunaan LocalDate dan DateTimeFormatter yang aman setelah di-import
+        // Ambil tanggal dan jam saat ini secara real-time
         String tanggalValidasi = LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
+        String jamValidasi = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
 
         grid.add(new Label("Nomor Ruangan"), 0, 0);
         grid.add(new Label(": Kamar " + nomorKamar), 1, 0);
@@ -155,7 +156,7 @@ public class TagihanPage extends BasePage {
         grid.add(new Label(": Transfer Virtual Account (Mandiri)"), 1, 2);
 
         grid.add(new Label("Waktu Validasi"), 0, 3);
-        Label lblTgl = new Label(": " + tanggalValidasi + " - 20:00 WIB");
+        Label lblTgl = new Label(": " + tanggalValidasi + " - " + jamValidasi + " WIB");
         lblTgl.setStyle("-fx-font-weight: bold; -fx-text-fill: #16A34A;");
         grid.add(lblTgl, 1, 3);
 
@@ -182,7 +183,6 @@ public class TagihanPage extends BasePage {
     public Button getBtnBayarSekarang() {
         return btnBayarSekarang;
     }
-
     public Button getBtnDetailBayar() {
         return btnDetailBayar;
     }

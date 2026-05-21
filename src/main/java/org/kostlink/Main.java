@@ -5,28 +5,37 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.kostlink.model.*;
 import org.kostlink.view.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main extends Application {
 
     private static Stage stage;
     private static Scene mainScene;
-    // Database sementara untuk menyimpan user admin dan hasil registrasi
-    private static HashMap<String, String> userDatabase = new HashMap<>();
 
-    private static String sessionUser = "";
-    private static String namaLengkapPenghuni = "";
-    private static String nomorKamarPenghuni = "-";
-    private static boolean statusAktif = false;
-    private static boolean isSudahBayar = false;
+    // Database berbasis Objek Polimorfisme
+    private static HashMap<String, User> userDatabase = new HashMap<>();
+    private static User currentUserActive = null;
+
+    // Penyelamat logika lama agar halaman-halaman View lain tidak ikut error
+    private static Penghuni dataPenghuniGlobal = null;
+    private static ArrayList<String> listKeluhan = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
-        // Data Login Testing
-        userDatabase.put("admin", "admin123");
-        userDatabase.put("zaskiah", "123");
+
+        // Mendaftarkan akun bawaan menggunakan instansiasi objek anak
+        userDatabase.put("admin", new PemilikKos("admin", "admin123"));
+        userDatabase.put("zaskiah", new PemilikKos("zaskiah", "123"));
+
+        // Akun simulasi penghuni bawaan
+        Penghuni defaultPenghuni = new Penghuni("budi", "123");
+        userDatabase.put("budi", defaultPenghuni);
+        dataPenghuniGlobal = defaultPenghuni;
 
         mainScene = new Scene(new Pane());
         stage.setScene(mainScene);
@@ -46,38 +55,55 @@ public class Main extends Application {
         LoginPage loginPage = new LoginPage();
         loginPage.setupComponents();
 
-        // Logika Tombol Login
         loginPage.getBtnLogin().setOnAction(e -> {
-            if (userDatabase.containsKey(loginPage.getUsername()) &&
-                    userDatabase.get(loginPage.getUsername()).equals(loginPage.getPassword())) {
-                sessionUser = loginPage.getUsername();
-                showDashboard();
-            } else {
-                showAlert("Username atau Password salah!");
+            String inputUser = loginPage.getUsername();
+            String inputPass = loginPage.getPassword();
+
+            // 1. Cek apakah username terdaftar di database objek
+            if (userDatabase.containsKey(inputUser)) {
+                User user = userDatabase.get(inputUser);
+
+                // 2. KONDISI KHUSUS ADMIN / PEMILIK KOS
+                boolean isAdminValid = (inputUser.equals("admin") && inputPass.equals("admin123")) ||
+                        (inputUser.equals("zaskiah") && inputPass.equals("123"));
+
+                // 3. KONDISI UNTUK PENGHUNI (Membaca password dari objek)
+                boolean isPenghuniValid = (user instanceof Penghuni) && user.getPassword().equals(inputPass);
+
+                // Jalankan login jika salah satu kondisi valid
+                if (isAdminValid || isPenghuniValid) {
+                    currentUserActive = user;
+
+                    // Jika tipe Penghuni, ikat ke dataPenghuniGlobal agar fiturnya sinkron
+                    if (user instanceof Penghuni) {
+                        dataPenghuniGlobal = (Penghuni) user;
+                    }
+
+                    // Polimorfisme mengarahkan ke dashboard yang sesuai role
+                    currentUserActive.bukaDashboard();
+                    return;
+                }
             }
+            showAlert("Username atau Password salah!");
         });
 
-        // Menambahkan aksi klik pada "Belum punya akun? Daftar di sini"
-        loginPage.getLinkDaftar().setOnAction(e -> {
-            showRegister();
-        });
-
+        loginPage.getLinkDaftar().setOnAction(e -> showRegister());
         setRoot(loginPage.getLayout(), "KOSTLINK - Login");
     }
 
-    // Tambahkan Method showRegister ini agar bisa pindah ke halaman daftar
     public static void showRegister() {
         RegisterPage regPage = new RegisterPage();
         regPage.setupComponents();
 
-        // Logika ketika user mengklik tombol daftar di halaman Register
         regPage.getBtnRegister().setOnAction(e -> {
             String userBaru = regPage.getUsername();
             String passBaru = regPage.getPassword();
 
             if (!userBaru.isEmpty() && !passBaru.isEmpty()) {
-                // Memasukkan data baru ke HashMap agar bisa digunakan login
-                userDatabase.put(userBaru, passBaru);
+                Penghuni penghuniBaru = new Penghuni(userBaru, passBaru);
+                userDatabase.put(userBaru, penghuniBaru);
+                dataPenghuniGlobal = penghuniBaru;
+
                 showAlert("Registrasi Berhasil! Silakan Login.");
                 showLogin();
             } else {
@@ -85,33 +111,46 @@ public class Main extends Application {
             }
         });
 
-        // Tombol kembali ke Login
         regPage.getBtnBack().setOnAction(e -> showLogin());
-
         setRoot(regPage.getLayout(), "KOSTLINK - Registrasi");
     }
 
-    public static void showDashboard() {
-        DashboardPage dbPage = new DashboardPage(sessionUser, namaLengkapPenghuni, nomorKamarPenghuni, statusAktif, 16);
+    public static void jalankanDashboardAdmin(PemilikKos admin) {
+        AdminDashboardPage adminPage = new AdminDashboardPage(admin.getUsername());
+        new AdminDashboardController(adminPage);
+        setRoot(adminPage.getLayout(), "KOSTLINK - Panel Utama Ibu Kost");
+    }
+
+    public static void jalankanDashboardPenghuni(Penghuni p) {
+        DashboardPage dbPage = new DashboardPage(
+                p.getUsername(),
+                p.getNamaLengkap(),
+                p.getNomorKamar(),
+                p.isStatusAktif(),
+                p.getTanggalSiklusKost()
+        );
         new DashboardController(dbPage);
 
         dbPage.getLblUser().setOnMouseClicked(e -> {
-            if (statusAktif) showHomePenghuni();
+            if (p.isStatusAktif()) showHomePenghuni();
             else showFormulir();
         });
 
-        setRoot(dbPage.getLayout(), "KOSTLINK - Dashboard");
+        setRoot(dbPage.getLayout(), "KOSTLINK - Dashboard Penghuni");
     }
 
     public static void showFormulir() {
         FormPenghuniPage formPage = new FormPenghuniPage();
         formPage.setupComponents();
         formPage.getBtnBatal().setOnAction(e -> showDashboard());
+
         formPage.getBtnKonfirmasi().setOnAction(e -> {
-            if (!formPage.getNamaLengkap().isEmpty()) {
-                namaLengkapPenghuni = formPage.getNamaLengkap();
-                nomorKamarPenghuni = formPage.getNoKamar();
-                statusAktif = true;
+            if (!formPage.getNamaLengkap().isEmpty() && dataPenghuniGlobal != null) {
+                dataPenghuniGlobal.setNamaLengkap(formPage.getNamaLengkap());
+                dataPenghuniGlobal.setNomorKamar(formPage.getNoKamar());
+                dataPenghuniGlobal.setStatusAktif(true);
+                dataPenghuniGlobal.setTanggalSiklusKost(LocalDate.now().getDayOfMonth());
+
                 showDashboard();
             }
         });
@@ -119,19 +158,47 @@ public class Main extends Application {
     }
 
     public static void showHomePenghuni() {
-        HomePenghuniPage profilePage = new HomePenghuniPage(namaLengkapPenghuni, sessionUser, nomorKamarPenghuni);
-        profilePage.getBtnBack().setOnAction(e -> showDashboard());
-        setRoot(profilePage.getLayout(), "KOSTLINK - Profil Penghuni");
+        if (dataPenghuniGlobal != null && currentUserActive != null) {
+            HomePenghuniPage profilePage = new HomePenghuniPage(
+                    dataPenghuniGlobal.getNamaLengkap(),
+                    currentUserActive.getUsername(),
+                    dataPenghuniGlobal.getNomorKamar()
+            );
+            profilePage.getBtnBack().setOnAction(e -> showDashboard());
+            setRoot(profilePage.getLayout(), "KOSTLINK - Profil Penghuni");
+        }
     }
 
-    // --- FITUR BARU: GETTER & SETTER GLOBAL UNTUK SINKRONISASI STATUS BAYAR ---
+    // =========================================================================
+    // JEMBATAN GETTER & SETTER GLOBAL (Penyelamat Semua Halaman View)
+    // =========================================================================
+    public static void showDashboard() {
+        if (currentUserActive != null) {
+            currentUserActive.bukaDashboard();
+        }
+    }
+
     public static boolean getIsSudahBayar() {
-        return isSudahBayar;
+        return dataPenghuniGlobal != null && dataPenghuniGlobal.isSudahBayar();
+    }
+    public static void setIsSudahBayar(boolean status) {
+        if (dataPenghuniGlobal != null) dataPenghuniGlobal.setSudahBayar(status);
+    }
+    public static String getNamaLengkapPenghuni() {
+        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getNamaLengkap() : "";
+    }
+    public static String getNomorKamarPenghuni() {
+        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getNomorKamar() : "-";
+    }
+    public static boolean getStatusAktif() {
+        return dataPenghuniGlobal != null && dataPenghuniGlobal.isStatusAktif();
+    }
+    public static int getTanggalSiklusKost() {
+        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getTanggalSiklusKost() : 1;
     }
 
-    public static void setIsSudahBayar(boolean status) {
-        isSudahBayar = status;
-    }
+    public static ArrayList<String> getListKeluhan() { return listKeluhan; }
+    public static void tambahKeluhan(String keluhan) { listKeluhan.add(keluhan); }
 
     public static void backToLogin() { showLogin(); }
     public static void goToFormulir() { showFormulir(); }

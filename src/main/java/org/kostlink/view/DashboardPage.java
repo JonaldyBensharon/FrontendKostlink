@@ -43,6 +43,7 @@ public class DashboardPage extends BasePage {
 
     @Override
     public void setupComponents() {
+        this.layout.getChildren().clear(); // Memastikan layout bersih saat re-render
         this.layout.setAlignment(Pos.TOP_LEFT);
         this.layout.setStyle("-fx-background-color: #2D033B;");
 
@@ -126,11 +127,13 @@ public class DashboardPage extends BasePage {
             statsRow.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(statsRow, Priority.ALWAYS);
 
-            // LOGIKA DINAMIS SIKLUS BULANAN
+            // =========================================================================
+            // DIPERBAIKI: LOGIKA DINAMIS SIKLUS BULANAN (SINKRON DATA)
+            // =========================================================================
             LocalDate hariIni = LocalDate.now();
             LocalDate jatuhTempoDate = LocalDate.of(hariIni.getYear(), hariIni.getMonth(), this.tanggalSiklusKost);
 
-            // 1. Jika hari ini sudah BENAR-BENAR MELEWATI hari H jatuh tempo (misal besoknya)
+            // 1. Jika hari ini sudah melewati hari jatuh tempo bulan ini
             if (hariIni.isAfter(jatuhTempoDate)) {
                 if (Main.getIsSudahBayar()) {
                     Main.setIsSudahBayar(false);
@@ -138,15 +141,13 @@ public class DashboardPage extends BasePage {
                 }
                 jatuhTempoDate = jatuhTempoDate.plusMonths(1);
             }
-            // 2. Jika hari ini PAS hari H jatuh tempo
+            // 2. Jika hari ini tepat pada tanggal pendaftaran/jatuh tempo
             else if (hariIni.isEqual(jatuhTempoDate)) {
                 if (this.isSudahBayar) {
-                    // Kalau sudah menekan bayar hari ini, tanggal jatuh tempo di kartu bergeser ke bulan depan
-                    jatuhTempoDate = jatuhTempoDate.plusMonths(1);
+                    jatuhTempoDate = jatuhTempoDate.plusMonths(1); // Geser tampilan jatuh tempo sebulan setelahnya
                 }
-                // Kalau BELUM bayar, biarkan jatuhTempoDate tetap di hari ini supaya statusnya tetap merah
             }
-            // 3. Jika hari ini belum masuk masa jatuh tempo
+            // 3. Jika hari ini belum memasuki batas akhir tanggal jatuh tempo
             else {
                 if (this.isSudahBayar) {
                     jatuhTempoDate = jatuhTempoDate.plusMonths(1);
