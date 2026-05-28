@@ -52,15 +52,15 @@ public class DashboardController {
     }
 
     private void tampilkanHalamanTagihan() {
-        // Ambil status terbaru dari Main.getIsSudahBayar() agar selalu sinkron
-        TagihanPage tagihanPage = new TagihanPage(view.getNoKamar(), Main.getIsSudahBayar());
+        // Buat TagihanPage dengan status pembayaran terbaru
+        TagihanPage tagihanPage = new TagihanPage(view.getNoKamar(), Main.getStatusPembayaran());
 
-        // AKSI JALUR CADANGAN: Hubungkan juga tombol bayar jika pengguna membukanya lewat menu sidebar tagihan
+        // Hubungkan tombol bayar jika ada (status BELUM_BAYAR)
         if (tagihanPage.getBtnBayarSekarang() != null) {
             tagihanPage.getBtnBayarSekarang().setOnAction(e -> eksekusiAlurBayar());
         }
 
-        // Klik Tombol Detail Pembayaran pada Riwayat Tagihan (Hanya tampil jika sudah lunas)
+        // Klik Tombol Detail Pembayaran (Hanya tampil jika sudah LUNAS)
         if (tagihanPage.getBtnDetailBayar() != null) {
             tagihanPage.getBtnDetailBayar().setOnAction(e -> {
                 TagihanPage.tampilkanPopUpDetailInvoice(view.getNoKamar());
@@ -104,20 +104,24 @@ public class DashboardController {
         contentArea.getChildren().setAll(pengaturanPage.getLayout());
     }
 
-    // --- PROSES POP-UP PEMBAYARAN KUSTOM YANG SUDAH DIPERBAIKI ---
+    // =========================================================================
+    // PROSES PEMBAYARAN: User kirim bukti → status MENUNGGU_VERIFIKASI
+    // Status TIDAK langsung berubah jadi LUNAS, harus dikonfirmasi admin
+    // =========================================================================
     private void eksekusiAlurBayar() {
-        TagihanPage.tampilkanPopUpPembayaran(() -> {
-            // 1. Ubah status data di Main menjadi true (Lunas)
-            Main.setIsSudahBayar(true);
+        TagihanPage.tampilkanPopUpPembayaran((buktiPath) -> {
+            // 1. Ubah status menjadi MENUNGGU_VERIFIKASI + simpan path bukti
+            Main.kirimBuktiPembayaran(buktiPath);
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Terima kasih! Pembayaran Anda berhasil divalidasi. 🎉");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                    "Bukti pembayaran Anda berhasil dikirim! 📤\n\n" +
+                    "Status tagihan akan berubah menjadi LUNAS setelah\n" +
+                    "Ibu Kost memverifikasi pembayaran Anda.");
+            alert.setHeaderText("Menunggu Verifikasi Admin");
             alert.showAndWait();
 
-            // 2. DETEKSI REFRESH PINTAR:
+            // 2. Refresh tampilan
             VBox contentArea = view.getContentArea();
-
-            // Kita cek apakah di dalam contentArea ada komponen Separator.
-            // TagihanPage meletakkan Separator di komponen kedua (index 1) setelah judul.
             boolean isSedangBukaHalamanTagihan = false;
             for (javafx.scene.Node node : contentArea.getChildren()) {
                 if (node instanceof Separator) {
@@ -127,12 +131,8 @@ public class DashboardController {
             }
 
             if (isSedangBukaHalamanTagihan) {
-                // Jika user mengklik "Saya Sudah Bayar" dari dalam halaman riwayat tagihan,
-                // jalankan fungsi ini agar halaman tagihannya langsung berubah jadi hijau di tempat!
                 tampilkanHalamanTagihan();
             } else {
-                // Jika user mengkliknya dari halaman utama (Dashboard huni),
-                // refresh struktur dashboard utamanya!
                 Main.showDashboard();
             }
         });

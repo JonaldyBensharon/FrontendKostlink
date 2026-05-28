@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import org.kostlink.model.*;
 import org.kostlink.view.*;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -178,12 +179,98 @@ public class Main extends Application {
         }
     }
 
+    // --- STATUS PEMBAYARAN 3 TAHAP ---
+    public static String getStatusPembayaran() {
+        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getStatusPembayaran() : "BELUM_BAYAR";
+    }
+    public static void setStatusPembayaran(String status) {
+        if (dataPenghuniGlobal != null) {
+            dataPenghuniGlobal.setStatusPembayaran(status);
+        }
+    }
+
+    // User mengirim bukti pembayaran → status jadi MENUNGGU_VERIFIKASI
+    public static void kirimBuktiPembayaran(String buktiPath) {
+        if (dataPenghuniGlobal != null) {
+            dataPenghuniGlobal.setStatusPembayaran("MENUNGGU_VERIFIKASI");
+            dataPenghuniGlobal.setTanggalKirimBukti(LocalDate.now());
+            dataPenghuniGlobal.setBuktiPembayaranPath(buktiPath);
+        }
+    }
+
+    // Overload backward compatibility
+    public static void kirimBuktiPembayaran() {
+        kirimBuktiPembayaran(null);
+    }
+
+    // Admin mengonfirmasi pembayaran → status jadi LUNAS + catat tanggal konfirmasi
+    public static void konfirmasiPembayaranAdmin() {
+        if (dataPenghuniGlobal != null) {
+            dataPenghuniGlobal.setStatusPembayaran("LUNAS");
+            dataPenghuniGlobal.setTanggalKonfirmasiAdmin(LocalDate.now());
+        }
+    }
+
+    // Admin menolak pembayaran → status kembali ke BELUM_BAYAR
+    public static void tolakPembayaranAdmin() {
+        if (dataPenghuniGlobal != null) {
+            dataPenghuniGlobal.setStatusPembayaran("BELUM_BAYAR");
+            dataPenghuniGlobal.setTanggalKirimBukti(null);
+            dataPenghuniGlobal.setBuktiPembayaranPath(null);
+        }
+    }
+
+    // Reset semua status pembayaran (untuk siklus baru)
+    public static void resetPembayaran() {
+        if (dataPenghuniGlobal != null) {
+            dataPenghuniGlobal.setStatusPembayaran("BELUM_BAYAR");
+            dataPenghuniGlobal.setTanggalKirimBukti(null);
+            dataPenghuniGlobal.setTanggalKonfirmasiAdmin(null);
+            dataPenghuniGlobal.setBuktiPembayaranPath(null);
+        }
+    }
+
+    // --- TANGGAL-TANGGAL ---
+    public static LocalDate getTanggalKirimBukti() {
+        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getTanggalKirimBukti() : null;
+    }
+    public static LocalDate getTanggalKonfirmasiAdmin() {
+        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getTanggalKonfirmasiAdmin() : null;
+    }
+
+    // --- BUKTI PEMBAYARAN ---
+    public static String getBuktiPembayaranPath() {
+        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getBuktiPembayaranPath() : null;
+    }
+    public static void setBuktiPembayaranPath(String path) {
+        if (dataPenghuniGlobal != null) {
+            dataPenghuniGlobal.setBuktiPembayaranPath(path);
+        }
+    }
+
+    // Jatuh tempo berikutnya = tanggal konfirmasi admin + 30 hari
+    public static LocalDate getJatuhTempoBerikutnya() {
+        if (dataPenghuniGlobal != null && dataPenghuniGlobal.getTanggalKonfirmasiAdmin() != null) {
+            return dataPenghuniGlobal.getTanggalKonfirmasiAdmin().plusDays(30);
+        }
+        return null;
+    }
+
+    // Backward compatibility
     public static boolean getIsSudahBayar() {
-        return dataPenghuniGlobal != null && dataPenghuniGlobal.isSudahBayar();
+        return "LUNAS".equals(getStatusPembayaran());
     }
     public static void setIsSudahBayar(boolean status) {
-        if (dataPenghuniGlobal != null) dataPenghuniGlobal.setSudahBayar(status);
+        if (dataPenghuniGlobal != null) {
+            if (status) {
+                konfirmasiPembayaranAdmin();
+            } else {
+                resetPembayaran();
+            }
+        }
     }
+
+    // --- DATA PENGHUNI ---
     public static String getNamaLengkapPenghuni() {
         return dataPenghuniGlobal != null ? dataPenghuniGlobal.getNamaLengkap() : "";
     }

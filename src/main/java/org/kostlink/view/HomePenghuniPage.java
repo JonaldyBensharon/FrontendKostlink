@@ -24,50 +24,107 @@ public class HomePenghuniPage extends BasePage {
     @Override
     public void setupComponents() {
         this.layout.setAlignment(Pos.CENTER);
-        this.layout.setStyle("-fx-background-color: #F0F2F5;");
+        this.layout.setStyle("-fx-background-color: linear-gradient(to bottom right, #1a0025, #2D033B, #3b0764);");
 
-        VBox container = new VBox(30);
+        VBox container = new VBox(24);
         container.setAlignment(Pos.CENTER);
-        container.setPadding(new Insets(50));
-        container.setMaxWidth(550);
-        container.setStyle("-fx-background-color: white; -fx-background-radius: 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 30, 0, 0, 15);");
+        container.setPadding(new Insets(45, 50, 40, 50));
+        container.setMaxWidth(520);
+        container.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.07);" +
+            "-fx-background-radius: 28;" +
+            "-fx-border-color: rgba(255,255,255,0.12);" +
+            "-fx-border-radius: 28;" +
+            "-fx-border-width: 1;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 40, 0, 0, 15);"
+        );
 
-        // Header Profil
+        // Avatar
         Label avatar = new Label(nama.substring(0, 1).toUpperCase());
-        avatar.setFont(Font.font("System", FontWeight.BOLD, 50));
+        avatar.setFont(Font.font("System", FontWeight.BOLD, 46));
         avatar.setTextFill(Color.WHITE);
         avatar.setAlignment(Pos.CENTER);
-        avatar.setPrefSize(120, 120);
-        avatar.setStyle("-fx-background-color: linear-gradient(to bottom right, #5D3FD3, #2D033B); -fx-background-radius: 100;");
+        avatar.setPrefSize(110, 110);
+        avatar.setStyle(
+            "-fx-background-color: linear-gradient(to bottom right, #7C3AED, #A855F7);" +
+            "-fx-background-radius: 100;" +
+            "-fx-effect: dropshadow(gaussian, rgba(124,58,237,0.45), 20, 0, 0, 8);"
+        );
 
+        // Name
         Label lblNama = new Label(nama);
-        lblNama.setFont(Font.font("System", FontWeight.BOLD, 28));
+        lblNama.setFont(Font.font("System", FontWeight.BOLD, 26));
+        lblNama.setTextFill(Color.WHITE);
 
-        // Grid Informasi
-        GridPane infoGrid = new GridPane();
-        infoGrid.setHgap(20);
-        infoGrid.setVgap(15);
-        infoGrid.setAlignment(Pos.CENTER);
+        Label lblRole = new Label("Penghuni Aktif");
+        lblRole.setTextFill(Color.rgb(168, 85, 247));
+        lblRole.setFont(Font.font("System", FontWeight.BOLD, 12));
+        lblRole.setPadding(new Insets(4, 14, 4, 14));
+        lblRole.setStyle(
+            "-fx-background-color: rgba(124,58,237,0.15);" +
+            "-fx-background-radius: 20;" +
+            "-fx-border-color: rgba(124,58,237,0.3);" +
+            "-fx-border-radius: 20;"
+        );
 
-        addInfoRow(infoGrid, 0, "Username", username);
-        addInfoRow(infoGrid, 1, "Nomor Kamar", noKamar);
-        addInfoRow(infoGrid, 2, "Status Akun", "Terverifikasi");
+        Separator sep = new Separator();
+        sep.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
 
-        btnBack = new Button("KEMBALI KE DASHBOARD");
-        btnBack.setPrefWidth(Double.MAX_VALUE);
-        btnBack.setStyle("-fx-background-color: #2D033B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15; -fx-background-radius: 15; -fx-cursor: hand;");
+        // Info Grid
+        VBox infoBox = new VBox(12);
+        infoBox.setMaxWidth(400);
+        infoBox.getChildren().addAll(
+            createInfoRow("👤", "Username", username),
+            createInfoRow("🏠", "Nomor Kamar", "Kamar " + noKamar),
+            createInfoRow("✅", "Status Akun", "Terverifikasi")
+        );
 
-        container.getChildren().addAll(avatar, lblNama, new Separator(), infoGrid, btnBack);
+        // Back button
+        btnBack = new Button("← KEMBALI KE DASHBOARD");
+        btnBack.setMaxWidth(Double.MAX_VALUE);
+        btnBack.setPrefHeight(46);
+        String btnBase = "-fx-background-color: linear-gradient(to right, #7C3AED, #A855F7);" +
+                "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;" +
+                "-fx-background-radius: 12; -fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(124,58,237,0.4), 15, 0, 0, 4);";
+        String btnHover = "-fx-background-color: linear-gradient(to right, #6D28D9, #9333EA);" +
+                "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;" +
+                "-fx-background-radius: 12; -fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(124,58,237,0.6), 20, 0, 0, 6);";
+        btnBack.setStyle(btnBase);
+        btnBack.setOnMouseEntered(e -> btnBack.setStyle(btnHover));
+        btnBack.setOnMouseExited(e -> btnBack.setStyle(btnBase));
+
+        container.getChildren().addAll(avatar, lblNama, lblRole, sep, infoBox, btnBack);
         this.layout.getChildren().add(container);
     }
 
-    private void addInfoRow(GridPane grid, int row, String label, String value) {
-        Label lblL = new Label(label + " :");
-        lblL.setTextFill(Color.GRAY);
-        Label lblV = new Label(value);
-        lblV.setStyle("-fx-font-weight: bold;");
-        grid.add(lblL, 0, row);
-        grid.add(lblV, 1, row);
+    private HBox createInfoRow(String icon, String label, String value) {
+        HBox row = new HBox(14);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(12, 18, 12, 18));
+        row.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.05);" +
+            "-fx-background-radius: 12;" +
+            "-fx-border-color: rgba(255,255,255,0.08);" +
+            "-fx-border-radius: 12;"
+        );
+
+        Label lblIcon = new Label(icon);
+        lblIcon.setFont(Font.font(18));
+
+        VBox textArea = new VBox(2);
+        Label lblLabel = new Label(label);
+        lblLabel.setTextFill(Color.rgb(160, 150, 200));
+        lblLabel.setFont(Font.font(11));
+        Label lblValue = new Label(value);
+        lblValue.setTextFill(Color.WHITE);
+        lblValue.setFont(Font.font("System", FontWeight.BOLD, 14));
+        textArea.getChildren().addAll(lblLabel, lblValue);
+
+        row.getChildren().addAll(lblIcon, textArea);
+        HBox.setHgrow(row, Priority.ALWAYS);
+        return row;
     }
 
     public Button getBtnBack() { return btnBack; }

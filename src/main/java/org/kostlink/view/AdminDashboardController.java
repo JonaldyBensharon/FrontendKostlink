@@ -3,13 +3,20 @@ package org.kostlink.view;
 import org.kostlink.Main;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class AdminDashboardController {
     private AdminDashboardPage view;
@@ -17,7 +24,7 @@ public class AdminDashboardController {
     public AdminDashboardController(AdminDashboardPage view) {
         this.view = view;
         initEvents();
-        tampilkanDataPenghuni(); ;
+        tampilkanDataPenghuni();
     }
 
     private void initEvents() {
@@ -40,16 +47,29 @@ public class AdminDashboardController {
         HBox summaryRow = new HBox(20);
         summaryRow.setMaxWidth(Double.MAX_VALUE);
 
+        String statusPembayaran = Main.getStatusPembayaran();
+
+        // Cek apakah siklus baru sudah dimulai (jatuh tempo +30 hari sudah lewat)
+        LocalDate hariIni = LocalDate.now();
+        LocalDate jatuhTempoBerikutnya = Main.getJatuhTempoBerikutnya();
+        if ("LUNAS".equals(statusPembayaran) && jatuhTempoBerikutnya != null) {
+            if (hariIni.isAfter(jatuhTempoBerikutnya) || hariIni.isEqual(jatuhTempoBerikutnya)) {
+                Main.resetPembayaran();
+                statusPembayaran = "BELUM_BAYAR";
+            }
+        }
+
         int totalPenghuni = Main.getStatusAktif() ? 1 : 0;
-        int sudahBayar = (Main.getStatusAktif() && Main.getIsSudahBayar()) ? 1 : 0;
-        int belumBayar = (Main.getStatusAktif() && !Main.getIsSudahBayar()) ? 1 : 0;
+        int sudahBayar = (Main.getStatusAktif() && "LUNAS".equals(statusPembayaran)) ? 1 : 0;
+        int menungguVerif = (Main.getStatusAktif() && "MENUNGGU_VERIFIKASI".equals(statusPembayaran)) ? 1 : 0;
+        int belumBayar = (Main.getStatusAktif() && "BELUM_BAYAR".equals(statusPembayaran)) ? 1 : 0;
         int jumlahKeluhan = Main.getListKeluhan().size();
 
         summaryRow.getChildren().addAll(
                 createCardMini("Total Penghuni", totalPenghuni + " Orang", "#3B82F6"),
                 createCardMini("Sudah Lunas", sudahBayar + " Kamar", "#10B981"),
-                createCardMini("Belum Bayar", belumBayar + " Kamar", "#EF4444"),
-                createCardMini("Laporan Masuk", jumlahKeluhan + " Keluhan", "#F59E0B")
+                createCardMini("Menunggu Verifikasi", menungguVerif + " Kamar", "#F59E0B"),
+                createCardMini("Belum Bayar", belumBayar + " Kamar", "#EF4444")
         );
 
         // --- KARTU RINCIAN DATA DIRI ---
@@ -66,13 +86,20 @@ public class AdminDashboardController {
             grid.setHgap(30);
             grid.setVgap(12);
 
-            // Hitung perkiraan jatuh tempo berdasarkan tanggal pendaftaran
-            LocalDate hariIni = LocalDate.now();
-            LocalDate jatuhTempo = LocalDate.of(hariIni.getYear(), hariIni.getMonth(), Main.getTanggalSiklusKost());
-            if (Main.getIsSudahBayar()) {
-                jatuhTempo = jatuhTempo.plusMonths(1);
+            // Hitung jatuh tempo untuk ditampilkan
+            LocalDate jatuhTempoTampil;
+            if ("LUNAS".equals(statusPembayaran) && jatuhTempoBerikutnya != null) {
+                jatuhTempoTampil = jatuhTempoBerikutnya;
+            } else {
+                int tanggalSiklus = Main.getTanggalSiklusKost();
+                int maxHari = hariIni.lengthOfMonth();
+                int tanggalSiklusValid = Math.min(tanggalSiklus, maxHari);
+                jatuhTempoTampil = LocalDate.of(hariIni.getYear(), hariIni.getMonth(), tanggalSiklusValid);
+                if (jatuhTempoTampil.isBefore(hariIni)) {
+                    jatuhTempoTampil = jatuhTempoTampil.plusMonths(1);
+                }
             }
-            String tglFormat = jatuhTempo.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
+            String tglFormat = jatuhTempoTampil.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
 
             grid.add(new Label("Nama Lengkap"), 0, 0);
             grid.add(createBoldLabel(": " + Main.getNamaLengkapPenghuni()), 1, 0);
@@ -89,12 +116,81 @@ public class AdminDashboardController {
             grid.add(lblTgl, 1, 3);
 
             grid.add(new Label("Status Keuangan"), 0, 4);
-            Label lblFinansial = new Label(Main.getIsSudahBayar() ? ": LUNAS" : ": MENUNGGU PEMBAYARAN");
-            lblFinansial.setTextFill(Main.getIsSudahBayar() ? Color.GREEN : Color.RED);
-            lblFinansial.setStyle("-fx-font-weight: bold;");
+            Label lblFinansial;
+            switch (statusPembayaran) {
+                case "MENUNGGU_VERIFIKASI":
+                    lblFinansial = new Label(": MENUNGGU VERIFIKASI ⏳");
+                    lblFinansial.setStyle("-fx-font-weight: bold; -fx-text-fill: #92400E;");
+                    break;
+                case "LUNAS":
+                    lblFinansial = new Label(": LUNAS ✅");
+                    lblFinansial.setTextFill(Color.GREEN);
+                    lblFinansial.setStyle("-fx-font-weight: bold;");
+                    break;
+                default:
+                    lblFinansial = new Label(": MENUNGGU PEMBAYARAN");
+                    lblFinansial.setTextFill(Color.RED);
+                    lblFinansial.setStyle("-fx-font-weight: bold;");
+                    break;
+            }
             grid.add(lblFinansial, 1, 4);
 
+            // Tampilkan tanggal konfirmasi admin jika ada
+            LocalDate tglKonfirmasi = Main.getTanggalKonfirmasiAdmin();
+            if (tglKonfirmasi != null) {
+                grid.add(new Label("Terakhir Dikonfirmasi"), 0, 5);
+                Label lblKonfirmasi = new Label(": " + tglKonfirmasi.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+                lblKonfirmasi.setStyle("-fx-font-weight: bold; -fx-text-fill: #166534;");
+                grid.add(lblKonfirmasi, 1, 5);
+            }
+
             detailCard.getChildren().add(grid);
+
+            // Notifikasi jatuh tempo di panel admin (hanya jika BELUM_BAYAR)
+            if ("BELUM_BAYAR".equals(statusPembayaran)) {
+                long selisihHari = ChronoUnit.DAYS.between(hariIni, jatuhTempoTampil);
+                VBox notifAdmin = new VBox(5);
+                notifAdmin.setPadding(new Insets(12, 15, 12, 15));
+
+                String pesanAdmin, bgColor, borderColor, textColor;
+                if (selisihHari < 0) {
+                    pesanAdmin = "⚠️ Penghuni sudah melewati jatuh tempo " + Math.abs(selisihHari) + " hari!";
+                    bgColor = "#FEF2F2"; borderColor = "#FECACA"; textColor = "#991B1B";
+                } else if (selisihHari == 0) {
+                    pesanAdmin = "🔴 Hari ini adalah jatuh tempo penghuni!";
+                    bgColor = "#FEF2F2"; borderColor = "#FCA5A5"; textColor = "#B91C1C";
+                } else if (selisihHari <= 3) {
+                    pesanAdmin = "⏰ " + selisihHari + " hari lagi jatuh tempo penghuni kamar " + Main.getNomorKamarPenghuni();
+                    bgColor = "#FFFBEB"; borderColor = "#FDE68A"; textColor = "#92400E";
+                } else {
+                    pesanAdmin = null; bgColor = ""; borderColor = ""; textColor = "";
+                }
+
+                if (pesanAdmin != null) {
+                    notifAdmin.setStyle("-fx-background-color: " + bgColor + "; -fx-border-color: " + borderColor + "; -fx-background-radius: 8; -fx-border-radius: 8;");
+                    Label lblNotif = new Label(pesanAdmin);
+                    lblNotif.setStyle("-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: " + textColor + ";");
+                    lblNotif.setWrapText(true);
+                    notifAdmin.getChildren().add(lblNotif);
+                    detailCard.getChildren().add(notifAdmin);
+                }
+            }
+
+            // Notifikasi khusus: ada pembayaran yang menunggu verifikasi
+            if ("MENUNGGU_VERIFIKASI".equals(statusPembayaran)) {
+                VBox notifPending = new VBox(5);
+                notifPending.setPadding(new Insets(12, 15, 12, 15));
+                notifPending.setStyle("-fx-background-color: #FFFBEB; -fx-border-color: #FDE68A; -fx-background-radius: 8; -fx-border-radius: 8;");
+
+                LocalDate tglKirim = Main.getTanggalKirimBukti();
+                String tglKirimStr = (tglKirim != null) ? tglKirim.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")) : "-";
+                Label lblPending = new Label("📋 Ada bukti pembayaran masuk pada " + tglKirimStr + " yang belum diverifikasi. Silakan cek di menu Validasi Pembayaran.");
+                lblPending.setStyle("-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: #92400E;");
+                lblPending.setWrapText(true);
+                notifPending.getChildren().add(lblPending);
+                detailCard.getChildren().add(notifPending);
+            }
+
         } else {
             Label empty = new Label("Belum ada data penghuni kost aktif di sistem.");
             empty.setTextFill(Color.GRAY);
@@ -106,6 +202,7 @@ public class AdminDashboardController {
 
     // =========================================================================
     // 2. MENU: VALIDASI RIWAYAT PEMBAYARAN
+    // Disini admin bisa: Konfirmasi (LUNAS) / Tolak / Reset
     // =========================================================================
     private void tampilkanValidasiPembayaran() {
         VBox area = view.getContentArea();
@@ -119,10 +216,11 @@ public class AdminDashboardController {
         containerBox.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #E0E0E0;");
 
         if (Main.getStatusAktif()) {
+            String statusPembayaran = Main.getStatusPembayaran();
+
             HBox rowData = new HBox(20);
             rowData.setAlignment(Pos.CENTER_LEFT);
             rowData.setPadding(new Insets(15));
-            rowData.setStyle("-fx-background-radius: 8; -fx-border-radius: 8;");
 
             VBox info = new VBox(5);
             Label lblUser = new Label("Kamar " + Main.getNomorKamarPenghuni() + " - " + Main.getNamaLengkapPenghuni());
@@ -132,34 +230,130 @@ public class AdminDashboardController {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
-            if (Main.getIsSudahBayar()) {
-                rowData.setStyle("-fx-background-color: #F0FDF4; -fx-border-color: #BBF7D0;");
+            if ("MENUNGGU_VERIFIKASI".equals(statusPembayaran)) {
+                // ===== MENUNGGU VERIFIKASI: Admin bisa Konfirmasi atau Tolak =====
+                rowData.setStyle("-fx-background-color: #FFFBEB; -fx-border-color: #FDE68A; -fx-background-radius: 8; -fx-border-radius: 8;");
+                lblStatus.setText("STATUS: MENUNGGU VERIFIKASI ⏳");
+                lblStatus.setStyle("-fx-font-weight: bold; -fx-text-fill: #92400E;");
+
+                LocalDate tglKirim = Main.getTanggalKirimBukti();
+                String tglKirimStr = (tglKirim != null) ? tglKirim.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")) : "-";
+                Label lblTgl = new Label("Bukti dikirim pada: " + tglKirimStr);
+                lblTgl.setStyle("-fx-font-size: 12; -fx-text-fill: #78350F;");
+
+                info.getChildren().addAll(lblUser, lblStatus, lblTgl);
+
+                // Tampilkan info bukti pembayaran jika ada
+                String buktiPath = Main.getBuktiPembayaranPath();
+                if (buktiPath != null) {
+                    Label lblBukti = new Label("📎 Bukti pembayaran telah di-upload");
+                    lblBukti.setStyle("-fx-font-size: 12; -fx-text-fill: #5B21B6; -fx-font-weight: bold;");
+                    info.getChildren().add(lblBukti);
+                }
+
+                // Tombol Lihat Bukti
+                Button btnLihatBukti = new Button("Lihat Bukti 🖼️");
+                btnLihatBukti.setStyle("-fx-background-color: #7C3AED; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-background-radius: 6;");
+                btnLihatBukti.setDisable(buktiPath == null);
+                btnLihatBukti.setOnAction(e -> tampilkanPopUpBuktiPembayaran(buktiPath));
+
+                // Tombol Konfirmasi LUNAS
+                Button btnKonfirmasi = new Button("Konfirmasi LUNAS ✅");
+                btnKonfirmasi.setStyle("-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-background-radius: 6;");
+                btnKonfirmasi.setOnAction(e -> {
+                    Main.konfirmasiPembayaranAdmin();
+
+                    LocalDate jatuhTempoBaru = Main.getJatuhTempoBerikutnya();
+                    String tglJT = (jatuhTempoBaru != null)
+                            ? jatuhTempoBaru.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
+                            : "-";
+
+                    Alert a = new Alert(Alert.AlertType.INFORMATION,
+                            "Pembayaran berhasil diverifikasi! ✅\n\n" +
+                            "Status penghuni: LUNAS\n" +
+                            "Jatuh tempo berikutnya: " + tglJT + "\n" +
+                            "(30 hari setelah tanggal konfirmasi)");
+                    a.setHeaderText("Konfirmasi Berhasil");
+                    a.showAndWait();
+                    tampilkanValidasiPembayaran();
+                });
+
+                // Tombol Tolak
+                Button btnTolak = new Button("Tolak Pembayaran ❌");
+                btnTolak.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-background-radius: 6;");
+                btnTolak.setOnAction(e -> {
+                    Main.tolakPembayaranAdmin();
+                    Alert a = new Alert(Alert.AlertType.WARNING,
+                            "Bukti pembayaran ditolak!\n" +
+                            "Status dikembalikan ke BELUM BAYAR.\n" +
+                            "Penghuni harus mengirim ulang bukti pembayaran.");
+                    a.setHeaderText("Pembayaran Ditolak");
+                    a.showAndWait();
+                    tampilkanValidasiPembayaran();
+                });
+
+                HBox tombolArea = new HBox(10);
+                tombolArea.setAlignment(Pos.CENTER);
+                tombolArea.getChildren().addAll(btnLihatBukti, btnKonfirmasi, btnTolak);
+                rowData.getChildren().addAll(info, spacer, tombolArea);
+
+            } else if ("LUNAS".equals(statusPembayaran)) {
+                // ===== SUDAH LUNAS =====
+                rowData.setStyle("-fx-background-color: #F0FDF4; -fx-border-color: #BBF7D0; -fx-background-radius: 8; -fx-border-radius: 8;");
                 lblStatus.setText("STATUS: TERVERIFIKASI LUNAS 🎉");
                 lblStatus.setTextFill(Color.GREEN);
                 lblStatus.setStyle("-fx-font-weight: bold;");
+
+                LocalDate tglKonfirmasi = Main.getTanggalKonfirmasiAdmin();
+                Label lblTglKonfirmasi = new Label();
+                if (tglKonfirmasi != null) {
+                    lblTglKonfirmasi.setText("Dikonfirmasi pada: " + tglKonfirmasi.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+                    lblTglKonfirmasi.setStyle("-fx-font-size: 12; -fx-text-fill: #166534;");
+                }
+
+                LocalDate jatuhTempoBaru = Main.getJatuhTempoBerikutnya();
+                Label lblJT = new Label();
+                if (jatuhTempoBaru != null) {
+                    lblJT.setText("Jatuh tempo berikutnya: " + jatuhTempoBaru.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+                    lblJT.setStyle("-fx-font-size: 12; -fx-text-fill: #1E3A8A; -fx-font-weight: bold;");
+                }
+
                 info.getChildren().addAll(lblUser, lblStatus);
+                if (tglKonfirmasi != null) info.getChildren().add(lblTglKonfirmasi);
+                if (jatuhTempoBaru != null) info.getChildren().add(lblJT);
 
                 Button btnReset = new Button("Reset Jadi Belum Bayar 🔄");
-                btnReset.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+                btnReset.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-background-radius: 6;");
                 btnReset.setOnAction(e -> {
-                    Main.setIsSudahBayar(false);
-                    Alert a = new Alert(Alert.AlertType.INFORMATION, "Tagihan berhasil di-reset ke Belum Bayar untuk periode berikutnya!");
+                    Main.resetPembayaran();
+                    Alert a = new Alert(Alert.AlertType.INFORMATION, "Tagihan berhasil di-reset ke Belum Bayar!");
                     a.showAndWait();
                     tampilkanValidasiPembayaran();
                 });
                 rowData.getChildren().addAll(info, spacer, btnReset);
+
             } else {
-                rowData.setStyle("-fx-background-color: #FFF5F5; -fx-border-color: #FFCCCC;");
+                // ===== BELUM BAYAR =====
+                rowData.setStyle("-fx-background-color: #FFF5F5; -fx-border-color: #FFCCCC; -fx-background-radius: 8; -fx-border-radius: 8;");
                 lblStatus.setText("STATUS: BELUM BAYAR / MENUNGGU TRANSFER 💰");
                 lblStatus.setTextFill(Color.RED);
                 lblStatus.setStyle("-fx-font-weight: bold;");
                 info.getChildren().addAll(lblUser, lblStatus);
 
                 Button btnPaksaLunas = new Button("Konfirmasi Lunas Manual (Admin) ✅");
-                btnPaksaLunas.setStyle("-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+                btnPaksaLunas.setStyle("-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-background-radius: 6;");
                 btnPaksaLunas.setOnAction(e -> {
-                    Main.setIsSudahBayar(true);
-                    Alert a = new Alert(Alert.AlertType.INFORMATION, "Pembayaran penghuni berhasil divalidasi langsung oleh Ibu Kost!");
+                    Main.konfirmasiPembayaranAdmin();
+
+                    LocalDate jatuhTempoBaru = Main.getJatuhTempoBerikutnya();
+                    String tglJT = (jatuhTempoBaru != null)
+                            ? jatuhTempoBaru.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
+                            : "-";
+
+                    Alert a = new Alert(Alert.AlertType.INFORMATION,
+                            "Pembayaran berhasil divalidasi langsung oleh Ibu Kost!\n\n" +
+                            "Jatuh tempo berikutnya: " + tglJT);
+                    a.setHeaderText("Konfirmasi Manual Berhasil");
                     a.showAndWait();
                     tampilkanValidasiPembayaran();
                 });
@@ -209,6 +403,65 @@ public class AdminDashboardController {
         }
 
         area.getChildren().addAll(title, new Separator(), listContainer);
+    }
+
+    // =========================================================================
+    // POPUP: LIHAT BUKTI PEMBAYARAN YANG DI-UPLOAD USER
+    // =========================================================================
+    private void tampilkanPopUpBuktiPembayaran(String filePath) {
+        Stage window = new Stage();
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("KOSTLINK - Bukti Pembayaran");
+
+        VBox root = new VBox(16);
+        root.setPadding(new Insets(25));
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: white;");
+
+        Label lblTitle = new Label("🖼️ Bukti Pembayaran");
+        lblTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 18; -fx-text-fill: #1F2937;");
+
+        Label lblPenghuni = new Label("Penghuni: " + Main.getNamaLengkapPenghuni() + " — Kamar " + Main.getNomorKamarPenghuni());
+        lblPenghuni.setStyle("-fx-font-size: 13; -fx-text-fill: #4B5563;");
+
+        if (filePath != null) {
+            File imgFile = new File(filePath);
+            if (imgFile.exists()) {
+                Image img = new Image(imgFile.toURI().toString(), 420, 400, true, true);
+                ImageView imageView = new ImageView(img);
+                imageView.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4);");
+
+                VBox imgContainer = new VBox(8);
+                imgContainer.setAlignment(Pos.CENTER);
+                imgContainer.setPadding(new Insets(12));
+                imgContainer.setStyle("-fx-background-color: #F9FAFB; -fx-border-color: #E5E7EB; -fx-background-radius: 12; -fx-border-radius: 12;");
+
+                Label lblFile = new Label("📁 " + imgFile.getName());
+                lblFile.setStyle("-fx-font-size: 11; -fx-text-fill: #6B7280;");
+                imgContainer.getChildren().addAll(imageView, lblFile);
+                root.getChildren().addAll(lblTitle, lblPenghuni, new Separator(), imgContainer);
+            } else {
+                Label lblError = new Label("⚠️ File tidak ditemukan: " + filePath);
+                lblError.setStyle("-fx-text-fill: #DC2626; -fx-font-size: 13;");
+                lblError.setWrapText(true);
+                root.getChildren().addAll(lblTitle, lblPenghuni, lblError);
+            }
+        } else {
+            Label lblNone = new Label("Tidak ada bukti pembayaran yang di-upload.");
+            lblNone.setStyle("-fx-text-fill: #6B7280;");
+            root.getChildren().addAll(lblTitle, lblPenghuni, lblNone);
+        }
+
+        Button btnTutup = new Button("Tutup");
+        btnTutup.setStyle("-fx-background-color: #E5E7EB; -fx-text-fill: #374151; -fx-font-weight: bold; -fx-padding: 8 25; -fx-background-radius: 8; -fx-cursor: hand;");
+        btnTutup.setOnAction(e -> window.close());
+        root.getChildren().add(btnTutup);
+
+        ScrollPane sp = new ScrollPane(root);
+        sp.setFitToWidth(true);
+        sp.setStyle("-fx-background-color: white;");
+        window.setScene(new Scene(sp, 500, 550));
+        window.showAndWait();
     }
 
     // --- HELPER COMPONENT DESIGN ---
