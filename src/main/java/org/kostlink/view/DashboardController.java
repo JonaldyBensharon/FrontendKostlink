@@ -113,14 +113,7 @@ public class DashboardController {
             // 1. Ubah status menjadi MENUNGGU_VERIFIKASI + simpan path bukti
             Main.kirimBuktiPembayaran(buktiPath);
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION,
-                    "Bukti pembayaran Anda berhasil dikirim! 📤\n\n" +
-                    "Status tagihan akan berubah menjadi LUNAS setelah\n" +
-                    "Ibu Kost memverifikasi pembayaran Anda.");
-            alert.setHeaderText("Menunggu Verifikasi Admin");
-            alert.showAndWait();
-
-            // 2. Refresh tampilan
+            // 2. Deteksi halaman saat ini SEBELUM Platform.runLater
             VBox contentArea = view.getContentArea();
             boolean isSedangBukaHalamanTagihan = false;
             for (javafx.scene.Node node : contentArea.getChildren()) {
@@ -129,12 +122,24 @@ public class DashboardController {
                     break;
                 }
             }
+            final boolean refreshKeTagihan = isSedangBukaHalamanTagihan;
 
-            if (isSedangBukaHalamanTagihan) {
-                tampilkanHalamanTagihan();
-            } else {
-                Main.showDashboard();
-            }
+            // 3. Tampilkan alert & refresh SETELAH popup modal benar-benar tertutup
+            javafx.application.Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                        "Bukti pembayaran Anda berhasil dikirim! 📤\n\n" +
+                        "Status tagihan akan berubah menjadi LUNAS setelah\n" +
+                        "Ibu Kost memverifikasi pembayaran Anda.");
+                alert.setHeaderText("Menunggu Verifikasi Admin");
+                alert.showAndWait();
+
+                // 4. Refresh tampilan
+                if (refreshKeTagihan) {
+                    tampilkanHalamanTagihan();
+                } else {
+                    Main.showDashboard();
+                }
+            });
         });
     }
 }
