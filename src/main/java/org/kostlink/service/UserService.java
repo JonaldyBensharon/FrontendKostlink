@@ -3,6 +3,8 @@ package org.kostlink.service;
 import org.kostlink.model.Penghuni;
 import org.kostlink.model.User;
 import org.kostlink.model.PemilikKos;
+import org.kostlink.repository.InMemoryUserRepository;
+import org.kostlink.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,10 +13,10 @@ public class UserService {
 
     private static final UserService instance = new UserService();
 
-    private final Map<String, User> userDatabase;
+    private final UserRepository userRepository;
 
     private UserService() {
-        this.userDatabase = new HashMap<>();
+        this.userRepository = new InMemoryUserRepository();
         seedDefaultUsers();
     }
 
@@ -27,16 +29,15 @@ public class UserService {
     // =========================
 
     private void seedDefaultUsers() {
-        userDatabase.put("admin", new PemilikKos("admin", "admin123"));
-        userDatabase.put("zaskiah", new PemilikKos("zaskiah", "123"));
+        userRepository.save(new PemilikKos("admin", "admin123"));
+        userRepository.save(new PemilikKos("zaskiah", "123"));
 
         Penghuni defaultPenghuni = new Penghuni("user", "123");
-
         defaultPenghuni.setNamaLengkap("Penghuni Demo");
         defaultPenghuni.setNomorKamar("A01");
         defaultPenghuni.setStatusAktif(true);
 
-        userDatabase.put(defaultPenghuni.getUsername(), defaultPenghuni);
+        userRepository.save(defaultPenghuni);
     }
 
     // =========================
@@ -49,21 +50,20 @@ public class UserService {
             return null;
         }
 
-        User user = userDatabase.get(username.trim());
-
-        if (user != null && user.getPassword().equals(password)) {
-            return user;
-        }
-
-        return null;
+        return userRepository.findByUsername(username.trim())
+                .filter(user -> user.getPassword().equals(password))
+                .orElse(null);
     }
 
     // =========================
     // REGISTER
     // =========================
-
     public boolean usernameExists(String username) {
-        return userDatabase.containsKey(username);
+        if (username == null) {
+            return false;
+        }
+
+        return userRepository.existsByUsername(username.trim());
     }
 
     public Penghuni registerPenghuni(String username, String password) {
@@ -83,7 +83,7 @@ public class UserService {
         }
 
         Penghuni penghuniBaru = new Penghuni(username, password);
-        userDatabase.put(username, penghuniBaru);
+        userRepository.save(penghuniBaru);
 
         return penghuniBaru;
     }
@@ -93,7 +93,7 @@ public class UserService {
     // =========================
 
     public User findByUsername(String username) {
-        return userDatabase.get(username);
+        return userRepository.findByUsername(username).orElse(null);
     }
 
     // =========================
@@ -101,6 +101,12 @@ public class UserService {
     // =========================
 
     public Map<String, User> getAllUsers() {
-        return new HashMap<>(userDatabase);
+        Map<String, User> users = new HashMap<>();
+
+        for (User user : userRepository.findAll()) {
+            users.put(user.getUsername(), user);
+        }
+
+        return users;
     }
 }

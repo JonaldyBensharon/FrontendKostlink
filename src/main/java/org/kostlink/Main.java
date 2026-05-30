@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.kostlink.model.*;
+import org.kostlink.service.ComplaintService;
 import org.kostlink.view.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -276,14 +277,18 @@ public class Main extends Application {
     }
 
     public static ArrayList<String> getListKeluhan() {
-        return new ArrayList<>(appState.getKeluhanList());
+        return new ArrayList<>(ComplaintService.getInstance().getKeluhanList());
     }
 
     public static void tambahKeluhan(String keluhan) {
-        appState.tambahKeluhan(keluhan);
+        ComplaintService.getInstance().tambahKeluhan(keluhan);
     }
 
-    public static void backToLogin() { showLogin(); }
+    public static void backToLogin() {
+        appState.resetSession();
+        showLogin();
+    }
+
     public static void goToFormulir() { showFormulir(); }
 
     private static void showAlert(String msg) {

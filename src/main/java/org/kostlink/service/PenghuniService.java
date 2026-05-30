@@ -32,7 +32,9 @@ public class PenghuniService {
         penghuni.setNamaLengkap(namaLengkap.trim());
         penghuni.setNomorKamar(nomorKamar.trim());
         penghuni.setStatusAktif(true);
-        penghuni.setTanggalSiklusKost(LocalDate.now().getDayOfMonth());
+        penghuni.setTanggalSiklusKost(
+                Math.min(LocalDate.now().getDayOfMonth(), 28)
+        );
     }
 
     // =========================
@@ -42,9 +44,11 @@ public class PenghuniService {
     public void kirimBukti(Penghuni penghuni, String buktiPath) {
         if (penghuni == null) return;
 
+        if (buktiPath == null || buktiPath.trim().isEmpty()) return;
+
         penghuni.setStatusPembayaran("MENUNGGU_VERIFIKASI");
         penghuni.setTanggalKirimBukti(LocalDate.now());
-        penghuni.setBuktiPembayaranPath(buktiPath);
+        penghuni.setBuktiPembayaranPath(buktiPath.trim());
     }
 
     public void konfirmasiPembayaran(Penghuni penghuni) {
