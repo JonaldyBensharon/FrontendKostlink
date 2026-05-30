@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import org.kostlink.service.AppStateService;
 import org.kostlink.service.UserService;
 import org.kostlink.service.PenghuniService;
+import org.kostlink.config.JPAUtil;
+import org.h2.tools.Server;
 
 public class Main extends Application {
 
@@ -296,5 +298,21 @@ public class Main extends Application {
         a.showAndWait();
     }
 
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) {
+        try {
+            JPAUtil.getEntityManager().close();
+            Server.createWebServer(
+                    "-web",
+                    "-webAllowOthers",
+                    "-webPort",
+                    "8082"
+            ).start();
+            System.out.println("Hibernate beserta H2 berhasil terinisialisasi:");
+            System.out.println("http://localhost:8082");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        launch(args); }
 }

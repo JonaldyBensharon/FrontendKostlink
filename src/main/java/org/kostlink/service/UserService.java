@@ -3,7 +3,7 @@ package org.kostlink.service;
 import org.kostlink.model.Penghuni;
 import org.kostlink.model.User;
 import org.kostlink.model.PemilikKos;
-import org.kostlink.repository.InMemoryUserRepository;
+import org.kostlink.repository.JPAUserRepository;
 import org.kostlink.repository.UserRepository;
 
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     private UserService() {
-        this.userRepository = new InMemoryUserRepository();
+        this.userRepository = new JPAUserRepository();
         seedDefaultUsers();
     }
 
@@ -29,15 +29,23 @@ public class UserService {
     // =========================
 
     private void seedDefaultUsers() {
-        userRepository.save(new PemilikKos("admin", "admin123"));
-        userRepository.save(new PemilikKos("zaskiah", "123"));
 
-        Penghuni defaultPenghuni = new Penghuni("user", "123");
-        defaultPenghuni.setNamaLengkap("Penghuni Demo");
-        defaultPenghuni.setNomorKamar("A01");
-        defaultPenghuni.setStatusAktif(true);
+        if (!userRepository.existsByUsername("admin")) {
+            userRepository.save(new PemilikKos("admin", "admin123"));
+        }
 
-        userRepository.save(defaultPenghuni);
+        if (!userRepository.existsByUsername("zaskiah")) {
+            userRepository.save(new PemilikKos("zaskiah", "123"));
+        }
+
+        if (!userRepository.existsByUsername("user")) {
+            Penghuni defaultPenghuni = new Penghuni("user", "123");
+            defaultPenghuni.setNamaLengkap("Penghuni Demo");
+            defaultPenghuni.setNomorKamar("A01");
+            defaultPenghuni.setStatusAktif(true);
+
+            userRepository.save(defaultPenghuni);
+        }
     }
 
     // =========================
