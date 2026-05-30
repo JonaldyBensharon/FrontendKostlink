@@ -8,35 +8,35 @@ import javafx.stage.Stage;
 import org.kostlink.model.*;
 import org.kostlink.view.*;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
+import org.kostlink.service.AppStateService;
+import org.kostlink.service.UserService;
+import org.kostlink.service.PenghuniService;
 
 public class Main extends Application {
 
     private static Stage stage;
     private static Scene mainScene;
 
-    // Database berbasis Objek Polimorfisme
-    private static HashMap<String, User> userDatabase = new HashMap<>();
-    private static User currentUserActive = null;
+    // Penambahan AppStateService
+    private static final AppStateService appState =
+            AppStateService.getInstance();
 
-    // Penyelamat logika lama agar halaman-halaman View lain tidak ikut error
-    private static Penghuni dataPenghuniGlobal = null;
-    private static ArrayList<String> listKeluhan = new ArrayList<>();
+    // Penambahan UserService untuk persiapan backend
+    private static final UserService userService =
+            UserService.getInstance();
+
+    // Penambahan PenghuniService
+    private static final PenghuniService penghuniService =
+            PenghuniService.getInstance();
+
+    private static Penghuni getPenghuni() {
+        return appState.getCurrentPenghuni();
+    }
 
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
-
-        // Mendaftarkan akun bawaan menggunakan instansiasi objek anak
-        userDatabase.put("admin", new PemilikKos("admin", "admin123"));
-        userDatabase.put("zaskiah", new PemilikKos("zaskiah", "123"));
-
-        // Akun simulasi penghuni bawaan
-        Penghuni defaultPenghuni = new Penghuni("budi", "123");
-        userDatabase.put("budi", defaultPenghuni);
-        dataPenghuniGlobal = defaultPenghuni;
 
         mainScene = new Scene(new Pane());
         stage.setScene(mainScene);
@@ -60,32 +60,19 @@ public class Main extends Application {
             String inputUser = loginPage.getUsername();
             String inputPass = loginPage.getPassword();
 
-            // 1. Cek apakah username terdaftar di database objek
-            if (userDatabase.containsKey(inputUser)) {
-                User user = userDatabase.get(inputUser);
+            User user = userService.login(inputUser, inputPass);
 
-                // 2. KONDISI KHUSUS ADMIN / PEMILIK KOS
-                boolean isAdminValid = (inputUser.equals("admin") && inputPass.equals("admin123")) ||
-                        (inputUser.equals("zaskiah") && inputPass.equals("123"));
+            if (user != null) {
+                appState.setCurrentUser(user);
 
-                // 3. KONDISI UNTUK PENGHUNI (Membaca password dari objek)
-                boolean isPenghuniValid = (user instanceof Penghuni) && user.getPassword().equals(inputPass);
-
-                // Jalankan login jika salah satu kondisi valid
-                if (isAdminValid || isPenghuniValid) {
-                    currentUserActive = user;
-
-                    // Jika tipe Penghuni, ikat ke dataPenghuniGlobal agar fiturnya sinkron
-                    if (user instanceof Penghuni) {
-                        dataPenghuniGlobal = (Penghuni) user;
-                    }
-
-                    // Polimorfisme mengarahkan ke dashboard yang sesuai role
-                    currentUserActive.bukaDashboard();
-                    return;
+                if (user instanceof Penghuni) {
+                    appState.setCurrentPenghuni((Penghuni) user);
                 }
+
+                user.bukaDashboard();
+            } else {
+                showAlert("Username atau Password salah!");
             }
-            showAlert("Username atau Password salah!");
         });
 
         loginPage.getLinkDaftar().setOnAction(e -> showRegister());
@@ -100,15 +87,19 @@ public class Main extends Application {
             String userBaru = regPage.getUsername();
             String passBaru = regPage.getPassword();
 
-            if (!userBaru.isEmpty() && !passBaru.isEmpty()) {
-                Penghuni penghuniBaru = new Penghuni(userBaru, passBaru);
-                userDatabase.put(userBaru, penghuniBaru);
-                dataPenghuniGlobal = penghuniBaru;
+            if (userBaru.isEmpty() || passBaru.isEmpty()) {
+                showAlert("Username dan Password tidak boleh kosong!");
+                return;
+            }
 
+            Penghuni penghuniBaru =
+                    userService.registerPenghuni(userBaru, passBaru);
+
+            if (penghuniBaru != null) {
                 showAlert("Registrasi Berhasil! Silakan Login.");
                 showLogin();
             } else {
-                showAlert("Username dan Password tidak boleh kosong!");
+                showAlert("Username sudah digunakan!");
             }
         });
 
@@ -146,11 +137,18 @@ public class Main extends Application {
         formPage.getBtnBatal().setOnAction(e -> showDashboard());
 
         formPage.getBtnKonfirmasi().setOnAction(e -> {
-            if (!formPage.getNamaLengkap().isEmpty() && dataPenghuniGlobal != null) {
-                dataPenghuniGlobal.setNamaLengkap(formPage.getNamaLengkap());
-                dataPenghuniGlobal.setNomorKamar(formPage.getNoKamar());
-                dataPenghuniGlobal.setStatusAktif(true);
-                dataPenghuniGlobal.setTanggalSiklusKost(LocalDate.now().getDayOfMonth());
+            if (!formPage.getNamaLengkap().isEmpty()
+                    && appState.getCurrentPenghuni() != null) {
+
+                Penghuni penghuni = appState.getCurrentPenghuni();
+
+                String noKamar = formPage.getNoKamar() == null ? "" : formPage.getNoKamar();
+
+                penghuniService.lengkapiData(
+                        penghuni,
+                        formPage.getNamaLengkap(),
+                        noKamar
+                );
 
                 showDashboard();
             }
@@ -159,12 +157,16 @@ public class Main extends Application {
     }
 
     public static void showHomePenghuni() {
-        if (dataPenghuniGlobal != null && currentUserActive != null) {
+        Penghuni penghuni = appState.getCurrentPenghuni();
+        User user = appState.getCurrentUser();
+
+        if (penghuni != null && user != null) {
             HomePenghuniPage profilePage = new HomePenghuniPage(
-                    dataPenghuniGlobal.getNamaLengkap(),
-                    currentUserActive.getUsername(),
-                    dataPenghuniGlobal.getNomorKamar()
+                    penghuni.getNamaLengkap(),
+                    user.getUsername(),
+                    penghuni.getNomorKamar()
             );
+
             profilePage.getBtnBack().setOnAction(e -> showDashboard());
             setRoot(profilePage.getLayout(), "KOSTLINK - Profil Penghuni");
         }
@@ -174,28 +176,26 @@ public class Main extends Application {
     // JEMBATAN GETTER & SETTER GLOBAL (Penyelamat Semua Halaman View)
     // =========================================================================
     public static void showDashboard() {
-        if (currentUserActive != null) {
-            currentUserActive.bukaDashboard();
+        if (appState.getCurrentUser() != null) {
+            appState.getCurrentUser().bukaDashboard();
         }
     }
 
     // --- STATUS PEMBAYARAN 3 TAHAP ---
     public static String getStatusPembayaran() {
-        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getStatusPembayaran() : "BELUM_BAYAR";
+        return penghuniService.getStatusPembayaran(getPenghuni());
     }
+
+    // Temporary bridge for legacy UI compatibility
     public static void setStatusPembayaran(String status) {
-        if (dataPenghuniGlobal != null) {
-            dataPenghuniGlobal.setStatusPembayaran(status);
+        if (getPenghuni() != null) {
+            getPenghuni().setStatusPembayaran(status);
         }
     }
 
     // User mengirim bukti pembayaran → status jadi MENUNGGU_VERIFIKASI
     public static void kirimBuktiPembayaran(String buktiPath) {
-        if (dataPenghuniGlobal != null) {
-            dataPenghuniGlobal.setStatusPembayaran("MENUNGGU_VERIFIKASI");
-            dataPenghuniGlobal.setTanggalKirimBukti(LocalDate.now());
-            dataPenghuniGlobal.setBuktiPembayaranPath(buktiPath);
-        }
+        penghuniService.kirimBukti(getPenghuni(), buktiPath);
     }
 
     // Overload backward compatibility
@@ -205,53 +205,44 @@ public class Main extends Application {
 
     // Admin mengonfirmasi pembayaran → status jadi LUNAS + catat tanggal konfirmasi
     public static void konfirmasiPembayaranAdmin() {
-        if (dataPenghuniGlobal != null) {
-            dataPenghuniGlobal.setStatusPembayaran("LUNAS");
-            dataPenghuniGlobal.setTanggalKonfirmasiAdmin(LocalDate.now());
-        }
+        penghuniService.konfirmasiPembayaran(getPenghuni());
     }
 
     // Admin menolak pembayaran → status kembali ke BELUM_BAYAR
     public static void tolakPembayaranAdmin() {
-        if (dataPenghuniGlobal != null) {
-            dataPenghuniGlobal.setStatusPembayaran("BELUM_BAYAR");
-            dataPenghuniGlobal.setTanggalKirimBukti(null);
-            dataPenghuniGlobal.setBuktiPembayaranPath(null);
-        }
+        penghuniService.tolakPembayaran(getPenghuni());
     }
 
     // Reset semua status pembayaran (untuk siklus baru)
     public static void resetPembayaran() {
-        if (dataPenghuniGlobal != null) {
-            dataPenghuniGlobal.setStatusPembayaran("BELUM_BAYAR");
-            dataPenghuniGlobal.setTanggalKirimBukti(null);
-            dataPenghuniGlobal.setTanggalKonfirmasiAdmin(null);
-            dataPenghuniGlobal.setBuktiPembayaranPath(null);
-        }
+        penghuniService.resetPembayaran(getPenghuni());
     }
 
     // --- TANGGAL-TANGGAL ---
     public static LocalDate getTanggalKirimBukti() {
-        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getTanggalKirimBukti() : null;
+        return penghuniService.getTanggalKirimBukti(getPenghuni());
     }
+
     public static LocalDate getTanggalKonfirmasiAdmin() {
-        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getTanggalKonfirmasiAdmin() : null;
+        return penghuniService.getTanggalKonfirmasi(getPenghuni());
     }
 
     // --- BUKTI PEMBAYARAN ---
     public static String getBuktiPembayaranPath() {
-        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getBuktiPembayaranPath() : null;
+        return penghuniService.getBuktiPath(getPenghuni());
     }
+
     public static void setBuktiPembayaranPath(String path) {
-        if (dataPenghuniGlobal != null) {
-            dataPenghuniGlobal.setBuktiPembayaranPath(path);
+        if (getPenghuni() != null) {
+            getPenghuni().setBuktiPembayaranPath(path);
         }
     }
 
     // Jatuh tempo berikutnya = tanggal konfirmasi admin + 30 hari
+    // Akan dipindahkan karena mengandung logika
     public static LocalDate getJatuhTempoBerikutnya() {
-        if (dataPenghuniGlobal != null && dataPenghuniGlobal.getTanggalKonfirmasiAdmin() != null) {
-            return dataPenghuniGlobal.getTanggalKonfirmasiAdmin().plusDays(30);
+        if (getPenghuni() != null && getPenghuni().getTanggalKonfirmasiAdmin() != null) {
+            return getPenghuni().getTanggalKonfirmasiAdmin().plusDays(30);
         }
         return null;
     }
@@ -261,7 +252,7 @@ public class Main extends Application {
         return "LUNAS".equals(getStatusPembayaran());
     }
     public static void setIsSudahBayar(boolean status) {
-        if (dataPenghuniGlobal != null) {
+        if (getPenghuni() != null) {
             if (status) {
                 konfirmasiPembayaranAdmin();
             } else {
@@ -272,27 +263,32 @@ public class Main extends Application {
 
     // --- DATA PENGHUNI ---
     public static String getNamaLengkapPenghuni() {
-        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getNamaLengkap() : "";
+        return getPenghuni() != null ? getPenghuni().getNamaLengkap() : "";
     }
     public static String getNomorKamarPenghuni() {
-        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getNomorKamar() : "-";
+        return getPenghuni() != null ? getPenghuni().getNomorKamar() : "-";
     }
     public static boolean getStatusAktif() {
-        return dataPenghuniGlobal != null && dataPenghuniGlobal.isStatusAktif();
+        return getPenghuni() != null && getPenghuni().isStatusAktif();
     }
     public static int getTanggalSiklusKost() {
-        return dataPenghuniGlobal != null ? dataPenghuniGlobal.getTanggalSiklusKost() : 1;
+        return getPenghuni() != null ? getPenghuni().getTanggalSiklusKost() : 1;
     }
 
-    public static ArrayList<String> getListKeluhan() { return listKeluhan; }
-    public static void tambahKeluhan(String keluhan) { listKeluhan.add(keluhan); }
+    public static ArrayList<String> getListKeluhan() {
+        return new ArrayList<>(appState.getKeluhanList());
+    }
+
+    public static void tambahKeluhan(String keluhan) {
+        appState.tambahKeluhan(keluhan);
+    }
 
     public static void backToLogin() { showLogin(); }
     public static void goToFormulir() { showFormulir(); }
 
     private static void showAlert(String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION, msg);
-        a.show();
+        a.showAndWait();
     }
 
     public static void main(String[] args) { launch(args); }
