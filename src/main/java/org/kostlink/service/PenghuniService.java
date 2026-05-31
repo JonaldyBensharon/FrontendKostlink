@@ -1,6 +1,8 @@
 package org.kostlink.service;
 
 import org.kostlink.model.Penghuni;
+import org.kostlink.repository.JPAUserRepository;
+import org.kostlink.repository.UserRepository;
 
 import java.time.LocalDate;
 
@@ -8,6 +10,8 @@ public class PenghuniService {
 
     private static final PenghuniService instance =
             new PenghuniService();
+
+    private final UserRepository userRepository = new JPAUserRepository();
 
     private PenghuniService() {}
 
@@ -35,6 +39,9 @@ public class PenghuniService {
         penghuni.setTanggalSiklusKost(
                 Math.min(LocalDate.now().getDayOfMonth(), 28)
         );
+
+        // Simpan ke database
+        userRepository.save(penghuni);
     }
 
     // =========================
@@ -49,6 +56,7 @@ public class PenghuniService {
         penghuni.setStatusPembayaran("MENUNGGU_VERIFIKASI");
         penghuni.setTanggalKirimBukti(LocalDate.now());
         penghuni.setBuktiPembayaranPath(buktiPath.trim());
+        userRepository.save(penghuni);
     }
 
     public void konfirmasiPembayaran(Penghuni penghuni) {
@@ -56,6 +64,7 @@ public class PenghuniService {
 
         penghuni.setStatusPembayaran("LUNAS");
         penghuni.setTanggalKonfirmasiAdmin(LocalDate.now());
+        userRepository.save(penghuni);
     }
 
     public void tolakPembayaran(Penghuni penghuni) {
@@ -65,6 +74,7 @@ public class PenghuniService {
         penghuni.setTanggalKirimBukti(null);
         penghuni.setTanggalKonfirmasiAdmin(null);
         penghuni.setBuktiPembayaranPath(null);
+        userRepository.save(penghuni);
     }
 
     public void resetPembayaran(Penghuni penghuni) {
@@ -74,6 +84,7 @@ public class PenghuniService {
         penghuni.setTanggalKirimBukti(null);
         penghuni.setTanggalKonfirmasiAdmin(null);
         penghuni.setBuktiPembayaranPath(null);
+        userRepository.save(penghuni);
     }
 
     // =========================
