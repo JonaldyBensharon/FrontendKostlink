@@ -1,6 +1,8 @@
 package org.kostlink.service;
 
 import org.kostlink.model.Penghuni;
+import org.kostlink.repository.JPAUserRepository;
+import org.kostlink.repository.UserRepository;
 
 import java.time.LocalDate;
 
@@ -9,16 +11,15 @@ public class PenghuniService {
     private static final PenghuniService instance =
             new PenghuniService();
 
+    private final UserRepository userRepository = new JPAUserRepository();
+
     private PenghuniService() {}
 
     public static PenghuniService getInstance() {
         return instance;
     }
 
-    // =========================
-    // FORMULIR / AKTIVASI
-    // =========================
-
+    // FORMULIR untuk aktivasi akun
     public void lengkapiData(
             Penghuni penghuni,
             String namaLengkap,
@@ -32,19 +33,24 @@ public class PenghuniService {
         penghuni.setNamaLengkap(namaLengkap.trim());
         penghuni.setNomorKamar(nomorKamar.trim());
         penghuni.setStatusAktif(true);
-        penghuni.setTanggalSiklusKost(LocalDate.now().getDayOfMonth());
+        penghuni.setTanggalSiklusKost(
+                Math.min(LocalDate.now().getDayOfMonth(), 28)
+        );
+
+        // Simpan ke database
+        userRepository.save(penghuni);
     }
 
-    // =========================
     // PEMBAYARAN
-    // =========================
-
     public void kirimBukti(Penghuni penghuni, String buktiPath) {
         if (penghuni == null) return;
 
+        if (buktiPath == null || buktiPath.trim().isEmpty()) return;
+
         penghuni.setStatusPembayaran("MENUNGGU_VERIFIKASI");
         penghuni.setTanggalKirimBukti(LocalDate.now());
-        penghuni.setBuktiPembayaranPath(buktiPath);
+        penghuni.setBuktiPembayaranPath(buktiPath.trim());
+        userRepository.save(penghuni);
     }
 
     public void konfirmasiPembayaran(Penghuni penghuni) {
@@ -52,6 +58,7 @@ public class PenghuniService {
 
         penghuni.setStatusPembayaran("LUNAS");
         penghuni.setTanggalKonfirmasiAdmin(LocalDate.now());
+        userRepository.save(penghuni);
     }
 
     public void tolakPembayaran(Penghuni penghuni) {
@@ -61,6 +68,7 @@ public class PenghuniService {
         penghuni.setTanggalKirimBukti(null);
         penghuni.setTanggalKonfirmasiAdmin(null);
         penghuni.setBuktiPembayaranPath(null);
+        userRepository.save(penghuni);
     }
 
     public void resetPembayaran(Penghuni penghuni) {
@@ -70,12 +78,10 @@ public class PenghuniService {
         penghuni.setTanggalKirimBukti(null);
         penghuni.setTanggalKonfirmasiAdmin(null);
         penghuni.setBuktiPembayaranPath(null);
+        userRepository.save(penghuni);
     }
 
-    // =========================
-    // QUERY
-    // =========================
-
+    // QUERY ke database
     public String getStatusPembayaran(Penghuni penghuni) {
         return penghuni != null
                 ? penghuni.getStatusPembayaran()

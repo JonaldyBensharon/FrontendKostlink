@@ -27,7 +27,7 @@ public class Penghuni extends User {
     private String buktiPembayaranPath = null;
 
     public Penghuni(String username, String password) {
-        super(username, password, "PENGHUNI");
+        super(username, password, Role.PENGHUNI);
     }
 
     @Override
@@ -37,20 +37,45 @@ public class Penghuni extends User {
 
     // Getter & Setter Enkapsulasi
     public String getNamaLengkap() { return namaLengkap; }
-    public void setNamaLengkap(String namaLengkap) { this.namaLengkap = namaLengkap; }
+
+    public void setNamaLengkap(String namaLengkap) {
+        if (namaLengkap != null) {
+            this.namaLengkap = namaLengkap.trim();
+        }
+    }
 
     public String getNomorKamar() { return nomorKamar; }
-    public void setNomorKamar(String nomorKamar) { this.nomorKamar = nomorKamar; }
+
+    public void setNomorKamar(String nomorKamar) {
+        if (nomorKamar != null) {
+            this.nomorKamar = nomorKamar.trim();
+        }
+    }
 
     public boolean isStatusAktif() { return statusAktif; }
     public void setStatusAktif(boolean statusAktif) { this.statusAktif = statusAktif; }
 
     public int getTanggalSiklusKost() { return tanggalSiklusKost; }
-    public void setTanggalSiklusKost(int tanggalSiklusKost) { this.tanggalSiklusKost = tanggalSiklusKost; }
 
+    public void setTanggalSiklusKost(int tanggalSiklusKost) {
+        if (tanggalSiklusKost >= 1 && tanggalSiklusKost <= 31) {
+            this.tanggalSiklusKost = tanggalSiklusKost;
+        }
+    }
     // --- STATUS PEMBAYARAN ---
     public String getStatusPembayaran() { return statusPembayaran; }
-    public void setStatusPembayaran(String statusPembayaran) { this.statusPembayaran = statusPembayaran; }
+
+    public void setStatusPembayaran(String statusPembayaran) {
+        if (statusPembayaran == null) return;
+
+        switch (statusPembayaran) {
+            case "BELUM_BAYAR":
+            case "MENUNGGU_VERIFIKASI":
+            case "LUNAS":
+                this.statusPembayaran = statusPembayaran;
+                break;
+        }
+    }
 
     public LocalDate getTanggalKirimBukti() { return tanggalKirimBukti; }
     public void setTanggalKirimBukti(LocalDate tanggalKirimBukti) { this.tanggalKirimBukti = tanggalKirimBukti; }

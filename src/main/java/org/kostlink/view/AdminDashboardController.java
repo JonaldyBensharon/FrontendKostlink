@@ -13,10 +13,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.kostlink.model.Penghuni;
+import org.kostlink.model.User;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 public class AdminDashboardController {
     private AdminDashboardPage view;
@@ -52,17 +56,43 @@ public class AdminDashboardController {
         // Cek apakah siklus baru sudah dimulai (jatuh tempo +30 hari sudah lewat)
         LocalDate hariIni = LocalDate.now();
         LocalDate jatuhTempoBerikutnya = Main.getJatuhTempoBerikutnya();
+
         if ("LUNAS".equals(statusPembayaran) && jatuhTempoBerikutnya != null) {
-            if (hariIni.isAfter(jatuhTempoBerikutnya) || hariIni.isEqual(jatuhTempoBerikutnya)) {
+            boolean siklusExpired =
+                    !hariIni.isBefore(jatuhTempoBerikutnya);
+
+            if (siklusExpired) {
                 Main.resetPembayaran();
-                statusPembayaran = "BELUM_BAYAR";
+                statusPembayaran = Main.getStatusPembayaran(); // sinkronisasi ulang
             }
         }
 
-        int totalPenghuni = Main.getStatusAktif() ? 1 : 0;
-        int sudahBayar = (Main.getStatusAktif() && "LUNAS".equals(statusPembayaran)) ? 1 : 0;
-        int menungguVerif = (Main.getStatusAktif() && "MENUNGGU_VERIFIKASI".equals(statusPembayaran)) ? 1 : 0;
-        int belumBayar = (Main.getStatusAktif() && "BELUM_BAYAR".equals(statusPembayaran)) ? 1 : 0;
+        // Pengambilan data dari database untuk keperluan penampilan
+
+        Map<String, User> users = Main.getUserService().getAllUsers();
+
+        int totalPenghuni = 0;
+        int sudahBayar = 0;
+        int menungguVerif = 0;
+        int belumBayar = 0;
+
+        for (User u : users.values()) {
+
+            if (u instanceof Penghuni p && p.isStatusAktif()) {
+                totalPenghuni++;
+
+                String status = p.getStatusPembayaran();
+
+                if ("LUNAS".equals(status)) {
+                    sudahBayar++;
+                } else if ("MENUNGGU_VERIFIKASI".equals(status)) {
+                    menungguVerif++;
+                } else {
+                    belumBayar++;
+                }
+            }
+        }
+
         int jumlahKeluhan = Main.getListKeluhan().size();
 
         summaryRow.getChildren().addAll(
@@ -255,7 +285,11 @@ public class AdminDashboardController {
                 Button btnLihatBukti = new Button("Lihat Bukti 🖼️");
                 btnLihatBukti.setStyle("-fx-background-color: #7C3AED; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-background-radius: 6;");
                 btnLihatBukti.setDisable(buktiPath == null);
-                btnLihatBukti.setOnAction(e -> tampilkanPopUpBuktiPembayaran(buktiPath));
+                btnLihatBukti.setOnAction(e -> {
+                    if (buktiPath != null) {
+                        tampilkanPopUpBuktiPembayaran(buktiPath);
+                    }
+                });
 
                 // Tombol Konfirmasi LUNAS
                 Button btnKonfirmasi = new Button("Konfirmasi LUNAS ✅");
