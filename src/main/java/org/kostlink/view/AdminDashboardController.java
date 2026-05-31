@@ -52,17 +52,24 @@ public class AdminDashboardController {
         // Cek apakah siklus baru sudah dimulai (jatuh tempo +30 hari sudah lewat)
         LocalDate hariIni = LocalDate.now();
         LocalDate jatuhTempoBerikutnya = Main.getJatuhTempoBerikutnya();
+
         if ("LUNAS".equals(statusPembayaran) && jatuhTempoBerikutnya != null) {
-            if (hariIni.isAfter(jatuhTempoBerikutnya) || hariIni.isEqual(jatuhTempoBerikutnya)) {
+            boolean siklusExpired =
+                    !hariIni.isBefore(jatuhTempoBerikutnya);
+
+            if (siklusExpired) {
                 Main.resetPembayaran();
-                statusPembayaran = "BELUM_BAYAR";
+                statusPembayaran = Main.getStatusPembayaran(); // sinkronisasi ulang
             }
         }
 
-        int totalPenghuni = Main.getStatusAktif() ? 1 : 0;
-        int sudahBayar = (Main.getStatusAktif() && "LUNAS".equals(statusPembayaran)) ? 1 : 0;
-        int menungguVerif = (Main.getStatusAktif() && "MENUNGGU_VERIFIKASI".equals(statusPembayaran)) ? 1 : 0;
-        int belumBayar = (Main.getStatusAktif() && "BELUM_BAYAR".equals(statusPembayaran)) ? 1 : 0;
+        boolean adaPenghuni = Main.getStatusAktif();
+
+        int totalPenghuni = adaPenghuni ? 1 : 0;
+        int sudahBayar = (adaPenghuni && "LUNAS".equals(statusPembayaran)) ? 1 : 0;
+        int menungguVerif = (adaPenghuni && "MENUNGGU_VERIFIKASI".equals(statusPembayaran)) ? 1 : 0;
+        int belumBayar = (adaPenghuni && "BELUM_BAYAR".equals(statusPembayaran)) ? 1 : 0;
+
         int jumlahKeluhan = Main.getListKeluhan().size();
 
         summaryRow.getChildren().addAll(
@@ -255,7 +262,11 @@ public class AdminDashboardController {
                 Button btnLihatBukti = new Button("Lihat Bukti 🖼️");
                 btnLihatBukti.setStyle("-fx-background-color: #7C3AED; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-background-radius: 6;");
                 btnLihatBukti.setDisable(buktiPath == null);
-                btnLihatBukti.setOnAction(e -> tampilkanPopUpBuktiPembayaran(buktiPath));
+                btnLihatBukti.setOnAction(e -> {
+                    if (buktiPath != null) {
+                        tampilkanPopUpBuktiPembayaran(buktiPath);
+                    }
+                });
 
                 // Tombol Konfirmasi LUNAS
                 Button btnKonfirmasi = new Button("Konfirmasi LUNAS ✅");

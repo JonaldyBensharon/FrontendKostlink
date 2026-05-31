@@ -1,6 +1,7 @@
 package org.kostlink.entity;
 
 import jakarta.persistence.*;
+import org.kostlink.model.Role;
 
 @Entity
 @Table(name = "users")
@@ -35,6 +36,11 @@ public class UserEntity {
 
     public String getUsername() {
         return username;
+    }
+
+    // Penambahan konversi setelah adanya Role
+    public Role getRoleAsEnum() {
+        return Role.valueOf(role);
     }
 
     public void setUsername(String username) {

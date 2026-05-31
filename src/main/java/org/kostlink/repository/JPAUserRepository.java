@@ -6,6 +6,7 @@ import org.kostlink.entity.UserEntity;
 import org.kostlink.model.PemilikKos;
 import org.kostlink.model.Penghuni;
 import org.kostlink.model.User;
+import org.kostlink.model.Role;
 
 import java.util.List;
 import java.util.Optional;
@@ -90,10 +91,15 @@ public class JPAUserRepository implements UserRepository {
     }
 
     private UserEntity toEntity(User user) {
+
+        if (user.getRole() == null) {
+            throw new IllegalStateException("User role tidak boleh null: " + user.getUsername());
+        }
+
         UserEntity entity = new UserEntity(
                 user.getUsername(),
                 user.getPassword(),
-                user.getRole()
+                user.getRole().name()
         );
 
         if (user instanceof Penghuni p) {
@@ -110,11 +116,15 @@ public class JPAUserRepository implements UserRepository {
 
     private User toDomain(UserEntity entity) {
 
-        if ("PEMILIK_KOST".equals(entity.getRole())) {
-            return new PemilikKos(
-                    entity.getUsername(),
-                    entity.getPassword()
-            );
+        Role role;
+        try {
+            role = Role.valueOf(entity.getRole());
+        } catch (Exception e) {
+            role = Role.PENGHUNI; // fallback aman
+        }
+
+        if (role == Role.PEMILIK_KOST) {
+            return new PemilikKos(entity.getUsername(), entity.getPassword());
         }
 
         Penghuni p = new Penghuni(

@@ -27,7 +27,7 @@ public class Penghuni extends User {
     private String buktiPembayaranPath = null;
 
     public Penghuni(String username, String password) {
-        super(username, password, "PENGHUNI");
+        super(username, password, Role.PENGHUNI);
     }
 
     @Override

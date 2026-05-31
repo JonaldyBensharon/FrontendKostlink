@@ -3,9 +3,9 @@ package org.kostlink.model;
 public abstract class User {
     protected String username;
     protected String password;
-    protected final String role;
+    protected final Role role;
 
-    public User(String username, String password, String role) {
+    public User(String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role = role;
@@ -13,8 +13,8 @@ public abstract class User {
 
     public String getUsername() { return username; }
     public String getPassword() { return password; }
-    public String getRole() { return role; }
+    public Role getRole() { return role; }
 
-    // Metode Polimorfisme abstrak
+    // Polimorfisme routing dashboard
     public abstract void bukaDashboard();
 }

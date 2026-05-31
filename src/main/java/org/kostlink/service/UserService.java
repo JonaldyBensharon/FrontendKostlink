@@ -58,9 +58,17 @@ public class UserService {
             return null;
         }
 
-        return userRepository.findByUsername(username.trim())
-                .filter(user -> user.getPassword().equals(password))
+        User user = userRepository.findByUsername(username.trim())
+                .filter(u -> u.getPassword().equals(password))
                 .orElse(null);
+
+        if (user != null) {
+            System.out.println("LOGIN SUCCESS: " + user.getUsername());
+            System.out.println("ROLE: " + user.getRole());
+            System.out.println("CLASS: " + user.getClass().getSimpleName());
+        }
+
+        return user;
     }
 
     // =========================

@@ -1,6 +1,5 @@
 package org.kostlink.service;
 
-import org.kostlink.model.Penghuni;
 import org.kostlink.model.User;
 
 public class AppStateService {
@@ -8,7 +7,6 @@ public class AppStateService {
     private static final AppStateService instance = new AppStateService();
 
     private User currentUser;
-    private Penghuni currentPenghuni;
 
     private AppStateService() {
 
@@ -31,23 +29,10 @@ public class AppStateService {
     }
 
     // =========================
-    // PENGHUNI ACTIVE DATA
-    // =========================
-
-    public Penghuni getCurrentPenghuni() {
-        return currentPenghuni;
-    }
-
-    public void setCurrentPenghuni(Penghuni currentPenghuni) {
-        this.currentPenghuni = currentPenghuni;
-    }
-
-    // =========================
     // RESET SESSION
     // =========================
 
     public void resetSession() {
         currentUser = null;
-        currentPenghuni = null;
     }
 }

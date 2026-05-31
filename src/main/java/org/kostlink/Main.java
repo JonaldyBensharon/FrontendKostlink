@@ -33,8 +33,9 @@ public class Main extends Application {
     private static final PenghuniService penghuniService =
             PenghuniService.getInstance();
 
-    private static Penghuni getPenghuni() {
-        return appState.getCurrentPenghuni();
+    private static Penghuni getCurrentPenghuni() {
+        User user = appState.getCurrentUser();
+        return (user instanceof Penghuni) ? (Penghuni) user : null;
     }
 
     @Override
@@ -68,11 +69,11 @@ public class Main extends Application {
             if (user != null) {
                 appState.setCurrentUser(user);
 
-                if (user instanceof Penghuni) {
-                    appState.setCurrentPenghuni((Penghuni) user);
+                if (user.getRole() == Role.PEMILIK_KOST) {
+                    jalankanDashboardAdmin((PemilikKos) user);
+                } else if (user.getRole() == Role.PENGHUNI) {
+                    jalankanDashboardPenghuni((Penghuni) user);
                 }
-
-                user.bukaDashboard();
             } else {
                 showAlert("Username atau Password salah!");
             }
@@ -140,10 +141,10 @@ public class Main extends Application {
         formPage.getBtnBatal().setOnAction(e -> showDashboard());
 
         formPage.getBtnKonfirmasi().setOnAction(e -> {
-            if (!formPage.getNamaLengkap().isEmpty()
-                    && appState.getCurrentPenghuni() != null) {
+            User user = appState.getCurrentUser();
 
-                Penghuni penghuni = appState.getCurrentPenghuni();
+            if (user instanceof Penghuni penghuni
+                    && !formPage.getNamaLengkap().isEmpty()) {
 
                 String noKamar = formPage.getNoKamar() == null ? "" : formPage.getNoKamar();
 
@@ -160,10 +161,9 @@ public class Main extends Application {
     }
 
     public static void showHomePenghuni() {
-        Penghuni penghuni = appState.getCurrentPenghuni();
         User user = appState.getCurrentUser();
 
-        if (penghuni != null && user != null) {
+        if (user instanceof Penghuni penghuni) {
             HomePenghuniPage profilePage = new HomePenghuniPage(
                     penghuni.getNamaLengkap(),
                     user.getUsername(),
@@ -186,19 +186,29 @@ public class Main extends Application {
 
     // --- STATUS PEMBAYARAN 3 TAHAP ---
     public static String getStatusPembayaran() {
-        return penghuniService.getStatusPembayaran(getPenghuni());
+        User user = appState.getCurrentUser();
+
+        if (user instanceof Penghuni p) {
+            return penghuniService.getStatusPembayaran(p);
+        }
+
+        return "-";
     }
 
     // Temporary bridge for legacy UI compatibility
     public static void setStatusPembayaran(String status) {
-        if (getPenghuni() != null) {
-            getPenghuni().setStatusPembayaran(status);
-        }
+        User user = appState.getCurrentUser();
+        if (!(user instanceof Penghuni p)) return;
+
+        p.setStatusPembayaran(status);
     }
 
     // User mengirim bukti pembayaran → status jadi MENUNGGU_VERIFIKASI
     public static void kirimBuktiPembayaran(String buktiPath) {
-        penghuniService.kirimBukti(getPenghuni(), buktiPath);
+        User user = appState.getCurrentUser();
+        if (!(user instanceof Penghuni p)) return;
+
+        penghuniService.kirimBukti(p, buktiPath);
     }
 
     // Overload backward compatibility
@@ -208,44 +218,61 @@ public class Main extends Application {
 
     // Admin mengonfirmasi pembayaran → status jadi LUNAS + catat tanggal konfirmasi
     public static void konfirmasiPembayaranAdmin() {
-        penghuniService.konfirmasiPembayaran(getPenghuni());
+        User user = appState.getCurrentUser();
+        if (!(user instanceof Penghuni p)) return;
+
+        penghuniService.konfirmasiPembayaran(p);
+
     }
 
     // Admin menolak pembayaran → status kembali ke BELUM_BAYAR
     public static void tolakPembayaranAdmin() {
-        penghuniService.tolakPembayaran(getPenghuni());
+        User user = appState.getCurrentUser();
+        if (!(user instanceof Penghuni p)) return;
+
+        penghuniService.tolakPembayaran(p);
+
     }
 
     // Reset semua status pembayaran (untuk siklus baru)
     public static void resetPembayaran() {
-        penghuniService.resetPembayaran(getPenghuni());
+        User user = appState.getCurrentUser();
+        if (!(user instanceof Penghuni p)) return;
+
+        penghuniService.resetPembayaran(p);
+
     }
 
     // --- TANGGAL-TANGGAL ---
     public static LocalDate getTanggalKirimBukti() {
-        return penghuniService.getTanggalKirimBukti(getPenghuni());
+        Penghuni p = getCurrentPenghuni();
+        return (p != null) ? penghuniService.getTanggalKirimBukti(p) : null;
     }
 
     public static LocalDate getTanggalKonfirmasiAdmin() {
-        return penghuniService.getTanggalKonfirmasi(getPenghuni());
+        Penghuni p = getCurrentPenghuni();
+        return (p != null) ? penghuniService.getTanggalKonfirmasi(p) : null;
     }
 
     // --- BUKTI PEMBAYARAN ---
     public static String getBuktiPembayaranPath() {
-        return penghuniService.getBuktiPath(getPenghuni());
+        Penghuni p = getCurrentPenghuni();
+        return (p != null) ? penghuniService.getBuktiPath(p) : null;
     }
 
     public static void setBuktiPembayaranPath(String path) {
-        if (getPenghuni() != null) {
-            getPenghuni().setBuktiPembayaranPath(path);
+        Penghuni p = getCurrentPenghuni();
+        if (p != null) {
+            p.setBuktiPembayaranPath(path);
         }
     }
 
     // Jatuh tempo berikutnya = tanggal konfirmasi admin + 30 hari
     // Akan dipindahkan karena mengandung logika
     public static LocalDate getJatuhTempoBerikutnya() {
-        if (getPenghuni() != null && getPenghuni().getTanggalKonfirmasiAdmin() != null) {
-            return getPenghuni().getTanggalKonfirmasiAdmin().plusDays(30);
+        Penghuni p = getCurrentPenghuni();
+        if (p != null && p.getTanggalKonfirmasiAdmin() != null) {
+            return p.getTanggalKonfirmasiAdmin().plusDays(30);
         }
         return null;
     }
@@ -254,8 +281,10 @@ public class Main extends Application {
     public static boolean getIsSudahBayar() {
         return "LUNAS".equals(getStatusPembayaran());
     }
+
     public static void setIsSudahBayar(boolean status) {
-        if (getPenghuni() != null) {
+        Penghuni p = getCurrentPenghuni();
+        if (p != null) {
             if (status) {
                 konfirmasiPembayaranAdmin();
             } else {
@@ -266,16 +295,23 @@ public class Main extends Application {
 
     // --- DATA PENGHUNI ---
     public static String getNamaLengkapPenghuni() {
-        return getPenghuni() != null ? getPenghuni().getNamaLengkap() : "";
+        Penghuni p = getCurrentPenghuni();
+        return (p != null) ? p.getNamaLengkap() : "";
     }
+
     public static String getNomorKamarPenghuni() {
-        return getPenghuni() != null ? getPenghuni().getNomorKamar() : "-";
+        Penghuni p = getCurrentPenghuni();
+        return (p != null) ? p.getNomorKamar() : "-";
     }
+
     public static boolean getStatusAktif() {
-        return getPenghuni() != null && getPenghuni().isStatusAktif();
+        Penghuni p = getCurrentPenghuni();
+        return p != null && p.isStatusAktif();
     }
+
     public static int getTanggalSiklusKost() {
-        return getPenghuni() != null ? getPenghuni().getTanggalSiklusKost() : 1;
+        Penghuni p = getCurrentPenghuni();
+        return (p != null) ? p.getTanggalSiklusKost() : 1;
     }
 
     public static ArrayList<String> getListKeluhan() {
