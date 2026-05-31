@@ -3,25 +3,20 @@ package org.kostlink.service;
 import org.kostlink.model.Penghuni;
 import org.kostlink.model.User;
 import org.kostlink.model.PemilikKos;
-import org.kostlink.repository.JPAUserRepository;
 import org.kostlink.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Service
 public class UserService {
-
-    private static final UserService instance = new UserService();
 
     private final UserRepository userRepository;
 
-    private UserService() {
-        this.userRepository = new JPAUserRepository();
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
         seedDefaultUsers();
-    }
-
-    public static UserService getInstance() {
-        return instance;
     }
 
     // DEFAULT DATA
