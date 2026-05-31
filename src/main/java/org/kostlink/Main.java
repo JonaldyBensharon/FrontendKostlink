@@ -38,6 +38,10 @@ public class Main extends Application {
         return (user instanceof Penghuni) ? (Penghuni) user : null;
     }
 
+    public static UserService getUserService() {
+        return userService;
+    }
+
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;

@@ -13,10 +13,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.kostlink.model.Penghuni;
+import org.kostlink.model.User;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 public class AdminDashboardController {
     private AdminDashboardPage view;
@@ -63,12 +67,31 @@ public class AdminDashboardController {
             }
         }
 
-        boolean adaPenghuni = Main.getStatusAktif();
+        // Pengambilan data dari database untuk keperluan penampilan
 
-        int totalPenghuni = adaPenghuni ? 1 : 0;
-        int sudahBayar = (adaPenghuni && "LUNAS".equals(statusPembayaran)) ? 1 : 0;
-        int menungguVerif = (adaPenghuni && "MENUNGGU_VERIFIKASI".equals(statusPembayaran)) ? 1 : 0;
-        int belumBayar = (adaPenghuni && "BELUM_BAYAR".equals(statusPembayaran)) ? 1 : 0;
+        Map<String, User> users = Main.getUserService().getAllUsers();
+
+        int totalPenghuni = 0;
+        int sudahBayar = 0;
+        int menungguVerif = 0;
+        int belumBayar = 0;
+
+        for (User u : users.values()) {
+
+            if (u instanceof Penghuni p && p.isStatusAktif()) {
+                totalPenghuni++;
+
+                String status = p.getStatusPembayaran();
+
+                if ("LUNAS".equals(status)) {
+                    sudahBayar++;
+                } else if ("MENUNGGU_VERIFIKASI".equals(status)) {
+                    menungguVerif++;
+                } else {
+                    belumBayar++;
+                }
+            }
+        }
 
         int jumlahKeluhan = Main.getListKeluhan().size();
 
