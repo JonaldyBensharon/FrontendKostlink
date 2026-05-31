@@ -24,10 +24,7 @@ public class UserService {
         return instance;
     }
 
-    // =========================
     // DEFAULT DATA
-    // =========================
-
     private void seedDefaultUsers() {
 
         if (!userRepository.existsByUsername("admin")) {
@@ -48,10 +45,7 @@ public class UserService {
         }
     }
 
-    // =========================
-    // LOGIN
-    // =========================
-
+    // Login
     public User login(String username, String password) {
 
         if (username == null || password == null) {
@@ -71,9 +65,7 @@ public class UserService {
         return user;
     }
 
-    // =========================
-    // REGISTER
-    // =========================
+    // Registrasi
     public boolean usernameExists(String username) {
         if (username == null) {
             return false;
@@ -104,18 +96,12 @@ public class UserService {
         return penghuniBaru;
     }
 
-    // =========================
-    // LOOKUP
-    // =========================
-
+    // cari berdasarkan nama pengguna
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
     }
 
-    // =========================
-    // DEBUG / TRANSITION SUPPORT
-    // =========================
-
+    // DEBUG/TRANSITION SUPPORT
     public Map<String, User> getAllUsers() {
         Map<String, User> users = new HashMap<>();
 

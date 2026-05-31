@@ -25,7 +25,7 @@ public class Main extends Application {
     private static final AppStateService appState =
             AppStateService.getInstance();
 
-    // Penambahan UserService untuk persiapan backend
+    // Penambahan UserService untuk memungkinkan integrasi backend
     private static final UserService userService =
             UserService.getInstance();
 
@@ -112,13 +112,13 @@ public class Main extends Application {
         });
 
         regPage.getBtnBack().setOnAction(e -> showLogin());
-        setRoot(regPage.getLayout(), "KOSTLINK - Registrasi");
+        setRoot(regPage.getLayout(), "KostLink - Registrasi");
     }
 
     public static void jalankanDashboardAdmin(PemilikKos admin) {
         AdminDashboardPage adminPage = new AdminDashboardPage(admin.getUsername());
         new AdminDashboardController(adminPage);
-        setRoot(adminPage.getLayout(), "KOSTLINK - Panel Utama Ibu Kost");
+        setRoot(adminPage.getLayout(), "KostLink - Panel Pemilik Kos");
     }
 
     public static void jalankanDashboardPenghuni(Penghuni p) {
@@ -136,7 +136,7 @@ public class Main extends Application {
             else showFormulir();
         });
 
-        setRoot(dbPage.getLayout(), "KOSTLINK - Dashboard Penghuni");
+        setRoot(dbPage.getLayout(), "KostLink - Panel Penghuni");
     }
 
     public static void showFormulir() {
@@ -161,7 +161,7 @@ public class Main extends Application {
                 showDashboard();
             }
         });
-        setRoot(formPage.getLayout(), "KOSTLINK - Lengkapi Data");
+        setRoot(formPage.getLayout(), "KostLink - Lengkapi Data");
     }
 
     public static void showHomePenghuni() {
@@ -175,20 +175,18 @@ public class Main extends Application {
             );
 
             profilePage.getBtnBack().setOnAction(e -> showDashboard());
-            setRoot(profilePage.getLayout(), "KOSTLINK - Profil Penghuni");
+            setRoot(profilePage.getLayout(), "KostLink - Profil Penghuni");
         }
     }
 
-    // =========================================================================
-    // JEMBATAN GETTER & SETTER GLOBAL (Penyelamat Semua Halaman View)
-    // =========================================================================
+    // JEMBATAN GETTER & SETTER GLOBAL
     public static void showDashboard() {
         if (appState.getCurrentUser() != null) {
             appState.getCurrentUser().bukaDashboard();
         }
     }
 
-    // --- STATUS PEMBAYARAN 3 TAHAP ---
+    // STATUS PEMBAYARAN 3 TAHAP
     public static String getStatusPembayaran() {
         User user = appState.getCurrentUser();
 
@@ -199,7 +197,6 @@ public class Main extends Application {
         return "-";
     }
 
-    // Temporary bridge for legacy UI compatibility
     public static void setStatusPembayaran(String status) {
         User user = appState.getCurrentUser();
         if (!(user instanceof Penghuni p)) return;
@@ -215,7 +212,6 @@ public class Main extends Application {
         penghuniService.kirimBukti(p, buktiPath);
     }
 
-    // Overload backward compatibility
     public static void kirimBuktiPembayaran() {
         kirimBuktiPembayaran(null);
     }
@@ -238,7 +234,7 @@ public class Main extends Application {
 
     }
 
-    // Reset semua status pembayaran (untuk siklus baru)
+    // Reset semua status pembayaran untuk siklus baru
     public static void resetPembayaran() {
         User user = appState.getCurrentUser();
         if (!(user instanceof Penghuni p)) return;
@@ -247,7 +243,7 @@ public class Main extends Application {
 
     }
 
-    // --- TANGGAL-TANGGAL ---
+    // Tanggal terkait operasional kos
     public static LocalDate getTanggalKirimBukti() {
         Penghuni p = getCurrentPenghuni();
         return (p != null) ? penghuniService.getTanggalKirimBukti(p) : null;
@@ -271,8 +267,8 @@ public class Main extends Application {
         }
     }
 
-    // Jatuh tempo berikutnya = tanggal konfirmasi admin + 30 hari
-    // Akan dipindahkan karena mengandung logika
+    // Jatuh tempo berikutnya
+    // Perlu dipindahkan karena mengandung logika
     public static LocalDate getJatuhTempoBerikutnya() {
         Penghuni p = getCurrentPenghuni();
         if (p != null && p.getTanggalKonfirmasiAdmin() != null) {

@@ -19,10 +19,7 @@ public class PenghuniService {
         return instance;
     }
 
-    // =========================
-    // FORMULIR / AKTIVASI
-    // =========================
-
+    // FORMULIR untuk aktivasi akun
     public void lengkapiData(
             Penghuni penghuni,
             String namaLengkap,
@@ -44,10 +41,7 @@ public class PenghuniService {
         userRepository.save(penghuni);
     }
 
-    // =========================
     // PEMBAYARAN
-    // =========================
-
     public void kirimBukti(Penghuni penghuni, String buktiPath) {
         if (penghuni == null) return;
 
@@ -87,10 +81,7 @@ public class PenghuniService {
         userRepository.save(penghuni);
     }
 
-    // =========================
-    // QUERY
-    // =========================
-
+    // QUERY ke database
     public String getStatusPembayaran(Penghuni penghuni) {
         return penghuni != null
                 ? penghuni.getStatusPembayaran()

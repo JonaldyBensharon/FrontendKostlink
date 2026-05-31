@@ -19,7 +19,6 @@ public class AppStateService {
     // =========================
     // USER SESSION
     // =========================
-
     public User getCurrentUser() {
         return currentUser;
     }
@@ -31,7 +30,6 @@ public class AppStateService {
     // =========================
     // RESET SESSION
     // =========================
-
     public void resetSession() {
         currentUser = null;
     }
