@@ -172,13 +172,25 @@ public class Main extends Application {
 
                 String noKamar = formPage.getNoKamar() == null ? "" : formPage.getNoKamar();
 
-                penghuniService.lengkapiData(
-                        penghuni,
-                        formPage.getNamaLengkap(),
-                        noKamar
-                );
+                try {
 
-                showDashboard();
+                    penghuniService.lengkapiData(
+                            penghuni,
+                            formPage.getNamaLengkap(),
+                            noKamar
+                    );
+
+                    showDashboard();
+
+                } catch (RuntimeException ex) {
+
+                    Alert alert = new Alert(
+                            Alert.AlertType.WARNING,
+                            ex.getMessage()
+                    );
+
+                    alert.showAndWait();
+                }
             }
         });
         setRoot(formPage.getLayout(), "KostLink - Lengkapi Data");
