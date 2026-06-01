@@ -27,10 +27,11 @@ import java.util.Map;
 
 public class AdminDashboardController {
     private AdminDashboardPage view;
-    private final PenghuniService penghuniService = PenghuniService.getInstance();
+    private final PenghuniService penghuniService;
 
-    public AdminDashboardController(AdminDashboardPage view) {
+    public AdminDashboardController(AdminDashboardPage view, PenghuniService penghuniService) {
         this.view = view;
+        this.penghuniService = penghuniService;
         initEvents();
         tampilkanDataPenghuni();
     }

@@ -26,18 +26,17 @@ public class Main extends Application {
     private static Scene mainScene;
 
     // Integrasi SpringBoot
-    private ConfigurableApplicationContext springContext;
+    private static ConfigurableApplicationContext springContext;
 
     // Penambahan AppStateService
-    private static final AppStateService appState =
-            AppStateService.getInstance();
+    private static AppStateService appState;
 
     // Penambahan UserService untuk memungkinkan integrasi backend
     private static UserService userService;
 
     // Penambahan PenghuniService
-    private static final PenghuniService penghuniService =
-            PenghuniService.getInstance();
+    private static PenghuniService penghuniService;
+    private static ComplaintService complaintService;
 
     private static Penghuni getCurrentPenghuni() {
         User user = appState.getCurrentUser();
@@ -66,7 +65,11 @@ public class Main extends Application {
                 .headless(false)
                 .run();
 
+        appState = springContext.getBean(AppStateService.class);
         userService = springContext.getBean(UserService.class);
+
+        penghuniService = springContext.getBean(PenghuniService.class);
+        complaintService = springContext.getBean(ComplaintService.class);
     }
 
     @Override
@@ -160,7 +163,7 @@ public class Main extends Application {
 
     public static void jalankanDashboardAdmin(PemilikKos admin) {
         AdminDashboardPage adminPage = new AdminDashboardPage(admin.getUsername());
-        new AdminDashboardController(adminPage);
+        new AdminDashboardController(adminPage, springContext.getBean(PenghuniService.class));
         setRoot(adminPage.getLayout(), "KostLink - Panel Pemilik Kos");
     }
 
@@ -369,12 +372,14 @@ public class Main extends Application {
         return (p != null) ? p.getTanggalSiklusKost() : 1;
     }
 
+
+    // Penerapan SpringBoot pada metode yang berkaitan dengan keluhan
     public static ArrayList<String> getListKeluhan() {
-        return new ArrayList<>(ComplaintService.getInstance().getKeluhanList());
+        return new ArrayList<>(complaintService.getKeluhanList());
     }
 
     public static void tambahKeluhan(String keluhan) {
-        ComplaintService.getInstance().tambahKeluhan(keluhan);
+        complaintService.tambahKeluhan(keluhan);
     }
 
     public static void backToLogin() {
