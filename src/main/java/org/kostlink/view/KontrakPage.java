@@ -48,9 +48,9 @@ public class KontrakPage extends BasePage {
         boxKontrak.setPadding(new Insets(28));
         boxKontrak.setMaxWidth(720);
         boxKontrak.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-background-radius: 16;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 15, 0, 0, 4);"
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 15, 0, 0, 4);"
         );
 
         // Room badge
@@ -58,10 +58,10 @@ public class KontrakPage extends BasePage {
         roomBadge.setAlignment(Pos.CENTER_LEFT);
         roomBadge.setPadding(new Insets(12, 18, 12, 18));
         roomBadge.setStyle(
-            "-fx-background-color: #F5F3FF;" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-color: #E9D5FF;" +
-            "-fx-border-radius: 12;"
+                "-fx-background-color: #F5F3FF;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: #E9D5FF;" +
+                        "-fx-border-radius: 12;"
         );
         Label roomIcon = new Label("🏠");
         roomIcon.setFont(Font.font(20));
@@ -73,23 +73,33 @@ public class KontrakPage extends BasePage {
         Separator sep = new Separator();
         sep.setStyle("-fx-background-color: #F3F4F6;");
 
-        // =====================================================================
-        // 🔥 LOGIKA TANGGAL DINAMIS (MEMBONGKAR HARDCODED)
-        // =====================================================================
+        // Logika Tanggal
         int tanggalMasuk = Main.getTanggalSiklusKost();
         LocalDate hariIni = LocalDate.now();
         String namaBulan = hariIni.getMonth().getDisplayName(TextStyle.FULL, new Locale("id", "ID"));
         int tahunIni = hariIni.getYear();
         String tanggalDinamis = tanggalMasuk + " " + namaBulan + " " + tahunIni;
-        // =====================================================================
 
-        // Info grid — styled rows
+        // Logika Status Pembayaran
+        String status = Main.getStatusPembayaran();
+        String labelStatus;
+        boolean isLunas = "LUNAS".equals(status);
+
+        if (isLunas) {
+            labelStatus = "Aktif Berjalan";
+        } else if ("MENUNGGU_VERIFIKASI".equals(status)) {
+            labelStatus = "Menunggu Verifikasi";
+        } else {
+            labelStatus = "Pending (Belum Bayar)";
+        }
+
+        // Info grid
         VBox infoRows = new VBox(0);
         infoRows.getChildren().addAll(
-            createInfoRow("📋", "Jenis Kontrak", "Bulanan", false),
-            createInfoRow("💰", "Harga Sewa", "Rp 1.200.000 / bulan", false),
-            createInfoRow("📅", "Tanggal Mulai", tanggalDinamis, false),
-            createInfoRow("✅", "Status Kontrak", "Aktif Berjalan", true)
+                createInfoRow("📋", "Jenis Kontrak", "Bulanan", false),
+                createInfoRow("💰", "Harga Sewa", "Rp 1.200.000 / bulan", false),
+                createInfoRow("📅", "Tanggal Mulai", tanggalDinamis, false),
+                createStatusRow("✅", "Status Kontrak", labelStatus, isLunas)
         );
 
         boxKontrak.getChildren().addAll(roomBadge, sep, infoRows);
@@ -99,10 +109,10 @@ public class KontrakPage extends BasePage {
         noteBox.setPadding(new Insets(14, 18, 14, 18));
         noteBox.setMaxWidth(720);
         noteBox.setStyle(
-            "-fx-background-color: #EFF6FF;" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-color: #BFDBFE;" +
-            "-fx-border-radius: 12;"
+                "-fx-background-color: #EFF6FF;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: #BFDBFE;" +
+                        "-fx-border-radius: 12;"
         );
         HBox noteContent = new HBox(10);
         noteContent.setAlignment(Pos.CENTER_LEFT);
@@ -118,6 +128,10 @@ public class KontrakPage extends BasePage {
     }
 
     private HBox createInfoRow(String icon, String label, String value, boolean isStatus) {
+        return createStatusRow(icon, label, value, !isStatus);
+    }
+
+    private HBox createStatusRow(String icon, String label, String value, boolean isLunas) {
         HBox row = new HBox(14);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(14, 16, 14, 16));
@@ -133,11 +147,10 @@ public class KontrakPage extends BasePage {
 
         Label lblValue = new Label(value);
         lblValue.setFont(Font.font("System", FontWeight.BOLD, 14));
-        if (isStatus) {
-            lblValue.setStyle("-fx-text-fill: #059669; -fx-font-weight: bold;");
-        } else {
-            lblValue.setStyle("-fx-text-fill: #1F2937; -fx-font-weight: bold;");
-        }
+
+        // Hijau jika lunas, Merah jika pending
+        String color = isLunas ? "#059669" : "#DC2626";
+        lblValue.setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);

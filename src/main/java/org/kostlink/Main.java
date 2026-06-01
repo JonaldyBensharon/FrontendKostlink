@@ -199,22 +199,24 @@ public class Main extends Application {
                 String noKamar = formPage.getNoKamar() == null ? "" : formPage.getNoKamar();
 
                 try {
-
+                    // 1. Simpan data penghuni ke database
                     penghuniService.lengkapiData(
                             penghuni,
                             formPage.getNamaLengkap(),
                             noKamar
                     );
 
+                    // 2. SET STATUS JADI PENDING (TAMBAHKAN INI)
+                    Main.setStatusPembayaran("PENDING");
+
+                    // 3. Pindah ke dashboard
                     showDashboard();
 
                 } catch (RuntimeException ex) {
-
                     Alert alert = new Alert(
                             Alert.AlertType.WARNING,
                             ex.getMessage()
                     );
-
                     alert.showAndWait();
                 }
             }
