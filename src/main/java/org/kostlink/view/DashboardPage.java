@@ -639,7 +639,7 @@ public class DashboardPage extends BasePage {
         row1.setMaxWidth(Double.MAX_VALUE);
         row1.getChildren().addAll(
                 createFasilitasCard("📶", "WiFi Super Cepat", "Internet fiber optic hingga 100 Mbps", "#3B82F6", "#EFF6FF"),
-                createFasilitasCard("❄", "AC Setiap Kamar", "Pendingin ruangan untuk kenyamanan", "#06B6D4", "#ECFEFF"),
+                createFasilitasCard("❄️", "AC Setiap Kamar", "Pendingin ruangan untuk kenyamanan", "#06B6D4", "#ECFEFF"),
                 createFasilitasCard("🔒", "Keamanan 24 Jam", "CCTV & satpam jaga sepanjang hari", "#8B5CF6", "#F5F3FF")
         );
 
@@ -647,9 +647,9 @@ public class DashboardPage extends BasePage {
         HBox row2 = new HBox(14);
         row2.setMaxWidth(Double.MAX_VALUE);
         row2.getChildren().addAll(
-                createFasilitasCard("🅿", "Parkir Luas", "Area parkir motor & mobil memadai", "#F59E0B", "#FFFBEB"),
-                createFasilitasCard("✧", "Cleaning Service", "Kebersihan area umum setiap hari", "#10B981", "#ECFDF5"),
-                createFasilitasCard("🍽", "Dapur Bersama", "Fasilitas memasak lengkap & bersih", "#EF4444", "#FEF2F2")
+                createFasilitasCard("🅿️", "Parkir Luas", "Area parkir motor & mobil memadai", "#F59E0B", "#FFFBEB"),
+                createFasilitasCard("🧹", "Cleaning Service", "Kebersihan area umum setiap hari", "#10B981", "#ECFDF5"),
+                createFasilitasCard("🍽️", "Dapur Bersama", "Fasilitas memasak lengkap & bersih", "#EF4444", "#FEF2F2")
         );
 
         // ===== 4. PANGGIL GALERI FOTO (Sudah termasuk Judul "Review Kamar" & Animasi Smooth) =====
