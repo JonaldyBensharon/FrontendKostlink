@@ -1,24 +1,17 @@
 package org.kostlink.service;
 
 import org.kostlink.repository.ComplaintRepository;
-import org.kostlink.repository.InMemoryComplaintRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ComplaintService {
-
-    private static final ComplaintService instance =
-            new ComplaintService();
 
     private final ComplaintRepository repository;
 
-    private ComplaintService() {
-        this.repository =
-                new InMemoryComplaintRepository();
-    }
-
-    public static ComplaintService getInstance() {
-        return instance;
+    public ComplaintService(ComplaintRepository repository) {
+        this.repository = repository;
     }
 
     public List<String> getKeluhanList() {
