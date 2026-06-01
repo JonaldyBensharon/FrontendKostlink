@@ -1,9 +1,13 @@
-package org.kostlink.view;
+package org.kostlink.controller;
 
 import org.kostlink.Main;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.VBox;
+import org.kostlink.view.DashboardPage;
+import org.kostlink.view.KontrakPage;
+import org.kostlink.view.LaporanPage;
+import org.kostlink.view.TagihanPage;
 
 public class DashboardController {
     private DashboardPage view;

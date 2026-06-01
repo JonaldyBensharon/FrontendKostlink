@@ -1,4 +1,4 @@
-package org.kostlink.view;
+package org.kostlink.controller;
 
 import org.kostlink.Main;
 import javafx.geometry.Insets;
@@ -15,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.kostlink.model.Penghuni;
 import org.kostlink.model.User;
+import org.kostlink.view.AdminDashboardPage;
 
 import java.io.File;
 import java.time.LocalDate;
