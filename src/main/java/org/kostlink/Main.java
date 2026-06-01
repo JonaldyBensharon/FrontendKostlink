@@ -116,9 +116,15 @@ public class Main extends Application {
         regPage.getBtnRegister().setOnAction(e -> {
             String userBaru = regPage.getUsername();
             String passBaru = regPage.getPassword();
+            String confirmPass = regPage.getConfirmPassword();
 
-            if (userBaru.isEmpty() || passBaru.isEmpty()) {
-                showAlert("Username dan Password tidak boleh kosong!");
+            if (userBaru.isEmpty() || passBaru.isEmpty() || confirmPass.isEmpty()) {
+                showAlert("Semua kolom harus diisi!");
+                return;
+            }
+
+            if (!passBaru.equals(confirmPass)) {
+                showAlert("Konfirmasi password tidak sesuai!");
                 return;
             }
 
