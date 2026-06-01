@@ -26,10 +26,6 @@ public class LaporanPage extends BasePage {
         this.layout.setStyle("-fx-background-color: transparent;");
 
         // Header
-        HBox headerRow = new HBox(12);
-        headerRow.setAlignment(Pos.CENTER_LEFT);
-        Label headerIcon = new Label("⚠️");
-        headerIcon.setFont(Font.font(28));
         VBox headerTexts = new VBox(2);
         Label lblTitle = new Label("Laporan & Keluhan Fasilitas");
         lblTitle.setFont(Font.font("System", FontWeight.BOLD, 24));
@@ -37,7 +33,6 @@ public class LaporanPage extends BasePage {
         Label lblSubTitle = new Label("Laporkan masalah atau keluhan kepada pengelola kost");
         lblSubTitle.setStyle("-fx-text-fill: #6B7280; -fx-font-size: 13;");
         headerTexts.getChildren().addAll(lblTitle, lblSubTitle);
-        headerRow.getChildren().addAll(headerIcon, headerTexts);
 
         // Form Card
         VBox boxForm = new VBox(18);
@@ -100,7 +95,7 @@ public class LaporanPage extends BasePage {
         btnKirimLaporan.setOnMouseExited(e -> btnKirimLaporan.setStyle(btnBase));
 
         boxForm.getChildren().addAll(infoBanner, lblKet, txtKeluhan, btnKirimLaporan);
-        this.layout.getChildren().addAll(headerRow, boxForm);
+        this.layout.getChildren().addAll(headerTexts, boxForm);
     }
 
     public Button getBtnKirimLaporan() { return btnKirimLaporan; }

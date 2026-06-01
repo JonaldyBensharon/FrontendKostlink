@@ -15,19 +15,34 @@ public class DashboardController {
 
     private void initEvents() {
         // 1. Menu Sidebar: Dashboard (Refresh Halaman Beranda Utama)
-        view.getBtnDashboard().setOnAction(e -> Main.showDashboard());
+        view.getBtnDashboard().setOnAction(e -> {
+            view.setActiveButton(view.getBtnDashboard());
+            Main.showDashboard();
+        });
 
         // 2. Menu Sidebar: Kontrak Saya
-        view.getBtnKontrak().setOnAction(e -> tampilkanHalamanKontrak());
+        view.getBtnKontrak().setOnAction(e -> {
+            view.setActiveButton(view.getBtnKontrak());
+            tampilkanHalamanKontrak();
+        });
 
         // 3. Menu Sidebar: Riwayat Tagihan
-        view.getBtnTagihan().setOnAction(e -> tampilkanHalamanTagihan());
+        view.getBtnTagihan().setOnAction(e -> {
+            view.setActiveButton(view.getBtnTagihan());
+            tampilkanHalamanTagihan();
+        });
 
         // 4. Menu Sidebar: Laporan/Keluhan
-        view.getBtnLaporan().setOnAction(e -> tampilkanHalamanLaporan());
+        view.getBtnLaporan().setOnAction(e -> {
+            view.setActiveButton(view.getBtnLaporan());
+            tampilkanHalamanLaporan();
+        });
 
         // 5. Menu Sidebar: Pengaturan
-        view.getBtnPengaturan().setOnAction(e -> tampilkanHalamanPengaturan());
+        view.getBtnPengaturan().setOnAction(e -> {
+            view.setActiveButton(view.getBtnPengaturan());
+            tampilkanHalamanPengaturan();
+        });
 
         // Tombol Logout
         view.getBtnLogout().setOnAction(e -> Main.backToLogin());

@@ -25,6 +25,7 @@ public class DashboardPage extends BasePage {
     private Button btnLogout, btnLengkapiData;
     private Button btnDashboard, btnKontrak, btnTagihan, btnLaporan, btnPengaturan;
     private Button btnBayarSekarang;
+    private Button currentActiveBtn;
     private VBox contentArea;
     private int tanggalSiklusKost;
 
@@ -79,11 +80,15 @@ public class DashboardPage extends BasePage {
         lblMenu.setPadding(new Insets(15, 0, 8, 8));
 
         VBox menuBox = new VBox(4);
-        btnDashboard = createMenuButton("🏠  Dashboard", true);
-        btnKontrak = createMenuButton("📄  Kontrak Saya", false);
-        btnTagihan = createMenuButton("💰  Riwayat Tagihan", false);
-        btnLaporan = createMenuButton("⚠️  Laporan/Keluhan", false);
-        btnPengaturan = createMenuButton("⚙️  Pengaturan", false);
+        btnDashboard = createMenuButton("Dashboard");
+        btnKontrak = createMenuButton("Kontrak Saya");
+        btnTagihan = createMenuButton("Riwayat Tagihan");
+        btnLaporan = createMenuButton("Laporan/Keluhan");
+        btnPengaturan = createMenuButton("Pengaturan");
+
+        // Set Dashboard as initially active
+        currentActiveBtn = btnDashboard;
+        setActiveButton(btnDashboard);
 
         if (!isAktif) {
             btnKontrak.setDisable(true);
@@ -416,22 +421,28 @@ public class DashboardPage extends BasePage {
         this.layout.getChildren().setAll(mainContainer);
     }
 
-    private Button createMenuButton(String text, boolean isActive) {
+    private static final String MENU_BASE_STYLE = "-fx-background-color: transparent; -fx-text-fill: rgba(200,180,230,0.8); -fx-font-size: 13; -fx-cursor: hand; -fx-background-radius: 10;";
+    private static final String MENU_HOVER_STYLE = "-fx-background-color: rgba(124,58,237,0.2); -fx-text-fill: white; -fx-font-size: 13; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 10;";
+    private static final String MENU_ACTIVE_STYLE = "-fx-background-color: rgba(124,58,237,0.25); -fx-text-fill: white; -fx-font-size: 13; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 10; -fx-border-color: rgba(124,58,237,0.5); -fx-border-radius: 10; -fx-border-width: 0 0 0 3;";
+
+    private Button createMenuButton(String text) {
         Button btn = new Button(text);
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setAlignment(Pos.CENTER_LEFT);
         btn.setPadding(new Insets(11, 14, 11, 14));
-
-        String baseStyle = "-fx-background-color: transparent; -fx-text-fill: rgba(200,180,230,0.8); -fx-font-size: 13; -fx-cursor: hand; -fx-background-radius: 10;";
-        String hoverStyle = "-fx-background-color: rgba(124,58,237,0.2); -fx-text-fill: white; -fx-font-size: 13; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 10;";
-        String activeStyle = "-fx-background-color: rgba(124,58,237,0.25); -fx-text-fill: white; -fx-font-size: 13; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 10; -fx-border-color: rgba(124,58,237,0.5); -fx-border-radius: 10; -fx-border-width: 0 0 0 3;";
-
-        btn.setStyle(isActive ? activeStyle : baseStyle);
-        if (!isActive) {
-            btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
-            btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
-        }
+        btn.setStyle(MENU_BASE_STYLE);
+        btn.setOnMouseEntered(e -> { if (btn != currentActiveBtn) btn.setStyle(MENU_HOVER_STYLE); });
+        btn.setOnMouseExited(e -> { if (btn != currentActiveBtn) btn.setStyle(MENU_BASE_STYLE); });
         return btn;
+    }
+
+    public void setActiveButton(Button btn) {
+        // Reset previous active button
+        if (currentActiveBtn != null && currentActiveBtn != btn) {
+            currentActiveBtn.setStyle(MENU_BASE_STYLE);
+        }
+        currentActiveBtn = btn;
+        btn.setStyle(MENU_ACTIVE_STYLE);
     }
 
     private VBox createStatCard(String title, String value, String icon, String accentColor, String bgColor) {

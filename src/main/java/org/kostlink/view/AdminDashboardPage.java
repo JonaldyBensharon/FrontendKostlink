@@ -17,6 +17,7 @@ public class AdminDashboardPage extends BasePage {
 
     // Tombol Sidebar Khusus Admin
     private Button btnDataPenghuni, btnValidasiBayar, btnKeluhanPenghuni;
+    private Button currentActiveBtn;
 
     // Area Konten Utama yang bakal berubah-ubah
     private VBox contentArea;
@@ -55,6 +56,10 @@ public class AdminDashboardPage extends BasePage {
         btnValidasiBayar = createMenuButton("✅  Validasi Bayar");
         btnKeluhanPenghuni = createMenuButton("📩  Kotak Keluhan");
 
+        // Set Data Penghuni as initially active
+        currentActiveBtn = btnDataPenghuni;
+        setActiveButton(btnDataPenghuni);
+
         menuBox.getChildren().addAll(btnDataPenghuni, btnValidasiBayar, btnKeluhanPenghuni);
         sidebar.getChildren().addAll(lblLogo, new Separator(), menuBox);
 
@@ -77,15 +82,25 @@ public class AdminDashboardPage extends BasePage {
         btnLogout.setStyle("-fx-background-color: #FF4B4B; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 8;");
         topBar.getChildren().addAll(lblAdminProfile, btnLogout);
 
-        // Content Area Utama
+        // Content Area Utama (dibungkus ScrollPane agar bisa scroll)
         contentArea = new VBox(30);
         contentArea.setPadding(new Insets(40));
-        VBox.setVgrow(contentArea, Priority.ALWAYS);
 
-        rightSide.getChildren().addAll(topBar, contentArea);
+        ScrollPane scrollPane = new ScrollPane(contentArea);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setStyle("-fx-background: #F8F9FA; -fx-background-color: #F8F9FA; -fx-border-color: transparent;");
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        rightSide.getChildren().addAll(topBar, scrollPane);
         mainContainer.getChildren().addAll(sidebar, rightSide);
         this.layout.getChildren().setAll(mainContainer);
     }
+
+    private static final String MENU_BASE_STYLE = "-fx-background-color: transparent; -fx-text-fill: #C7D2FE; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 8;";
+    private static final String MENU_HOVER_STYLE = "-fx-background-color: #312E81; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 8;";
+    private static final String MENU_ACTIVE_STYLE = "-fx-background-color: #312E81; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #818CF8; -fx-border-radius: 8; -fx-border-width: 0 0 0 3;";
 
     // Fungsi pembantu buat bikin tombol menu sidebar yang cantik
     private Button createMenuButton(String text) {
@@ -93,14 +108,18 @@ public class AdminDashboardPage extends BasePage {
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setAlignment(Pos.CENTER_LEFT);
         btn.setPadding(new Insets(12, 15, 12, 15));
-
-        String baseStyle = "-fx-background-color: transparent; -fx-text-fill: #C7D2FE; -fx-font-size: 14; -fx-cursor: hand;";
-        String hoverStyle = "-fx-background-color: #312E81; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-font-weight: bold;";
-
-        btn.setStyle(baseStyle);
-        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
-        btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
+        btn.setStyle(MENU_BASE_STYLE);
+        btn.setOnMouseEntered(e -> { if (btn != currentActiveBtn) btn.setStyle(MENU_HOVER_STYLE); });
+        btn.setOnMouseExited(e -> { if (btn != currentActiveBtn) btn.setStyle(MENU_BASE_STYLE); });
         return btn;
+    }
+
+    public void setActiveButton(Button btn) {
+        if (currentActiveBtn != null && currentActiveBtn != btn) {
+            currentActiveBtn.setStyle(MENU_BASE_STYLE);
+        }
+        currentActiveBtn = btn;
+        btn.setStyle(MENU_ACTIVE_STYLE);
     }
 
     // --- GETTERS (Supaya bisa dipakai Controller) ---

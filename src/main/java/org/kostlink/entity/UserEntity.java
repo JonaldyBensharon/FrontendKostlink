@@ -3,6 +3,8 @@ package org.kostlink.entity;
 import jakarta.persistence.*;
 import org.kostlink.model.Role;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -20,6 +22,12 @@ public class UserEntity {
     private String nomorKamar;
     private Boolean statusAktif;
     private Integer tanggalSiklusKost;
+
+    // ===== FIELD PEMBAYARAN =====
+    private String statusPembayaran;
+    private LocalDate tanggalKirimBukti;
+    private LocalDate tanggalKonfirmasiAdmin;
+    private String buktiPembayaranPath;
 
     public UserEntity() {
     }
@@ -89,5 +97,38 @@ public class UserEntity {
 
     public void setTanggalSiklusKost(Integer tanggalSiklusKost) {
         this.tanggalSiklusKost = tanggalSiklusKost;
+    }
+
+    // ===== GETTER & SETTER PEMBAYARAN =====
+    public String getStatusPembayaran() {
+        return statusPembayaran;
+    }
+
+    public void setStatusPembayaran(String statusPembayaran) {
+        this.statusPembayaran = statusPembayaran;
+    }
+
+    public LocalDate getTanggalKirimBukti() {
+        return tanggalKirimBukti;
+    }
+
+    public void setTanggalKirimBukti(LocalDate tanggalKirimBukti) {
+        this.tanggalKirimBukti = tanggalKirimBukti;
+    }
+
+    public LocalDate getTanggalKonfirmasiAdmin() {
+        return tanggalKonfirmasiAdmin;
+    }
+
+    public void setTanggalKonfirmasiAdmin(LocalDate tanggalKonfirmasiAdmin) {
+        this.tanggalKonfirmasiAdmin = tanggalKonfirmasiAdmin;
+    }
+
+    public String getBuktiPembayaranPath() {
+        return buktiPembayaranPath;
+    }
+
+    public void setBuktiPembayaranPath(String buktiPembayaranPath) {
+        this.buktiPembayaranPath = buktiPembayaranPath;
     }
 }

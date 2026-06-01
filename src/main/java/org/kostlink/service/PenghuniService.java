@@ -45,11 +45,11 @@ public class PenghuniService {
     public void kirimBukti(Penghuni penghuni, String buktiPath) {
         if (penghuni == null) return;
 
-        if (buktiPath == null || buktiPath.trim().isEmpty()) return;
-
         penghuni.setStatusPembayaran("MENUNGGU_VERIFIKASI");
         penghuni.setTanggalKirimBukti(LocalDate.now());
-        penghuni.setBuktiPembayaranPath(buktiPath.trim());
+        if (buktiPath != null && !buktiPath.trim().isEmpty()) {
+            penghuni.setBuktiPembayaranPath(buktiPath.trim());
+        }
         userRepository.save(penghuni);
     }
 
@@ -104,5 +104,46 @@ public class PenghuniService {
         return penghuni != null
                 ? penghuni.getBuktiPembayaranPath()
                 : null;
+    }
+
+    // =========================================================================
+    // ADMIN QUERIES: Ambil semua penghuni aktif dari database
+    // =========================================================================
+    public java.util.List<Penghuni> findAllAktifPenghuni() {
+        java.util.List<Penghuni> result = new java.util.ArrayList<>();
+        for (org.kostlink.model.User u : userRepository.findAll()) {
+            if (u instanceof Penghuni p && p.isStatusAktif()) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    // Konfirmasi pembayaran untuk penghuni tertentu (dipanggil dari admin)
+    public void konfirmasiPembayaranByAdmin(Penghuni penghuni) {
+        if (penghuni == null) return;
+        penghuni.setStatusPembayaran("LUNAS");
+        penghuni.setTanggalKonfirmasiAdmin(LocalDate.now());
+        userRepository.save(penghuni);
+    }
+
+    // Tolak pembayaran untuk penghuni tertentu (dipanggil dari admin)
+    public void tolakPembayaranByAdmin(Penghuni penghuni) {
+        if (penghuni == null) return;
+        penghuni.setStatusPembayaran("BELUM_BAYAR");
+        penghuni.setTanggalKirimBukti(null);
+        penghuni.setTanggalKonfirmasiAdmin(null);
+        penghuni.setBuktiPembayaranPath(null);
+        userRepository.save(penghuni);
+    }
+
+    // Reset pembayaran untuk penghuni tertentu (dipanggil dari admin)
+    public void resetPembayaranByAdmin(Penghuni penghuni) {
+        if (penghuni == null) return;
+        penghuni.setStatusPembayaran("BELUM_BAYAR");
+        penghuni.setTanggalKirimBukti(null);
+        penghuni.setTanggalKonfirmasiAdmin(null);
+        penghuni.setBuktiPembayaranPath(null);
+        userRepository.save(penghuni);
     }
 }

@@ -109,6 +109,11 @@ public class JPAUserRepository implements UserRepository {
             entity.setTanggalSiklusKost(
                     p.getTanggalSiklusKost()
             );
+            // Persist payment fields
+            entity.setStatusPembayaran(p.getStatusPembayaran());
+            entity.setTanggalKirimBukti(p.getTanggalKirimBukti());
+            entity.setTanggalKonfirmasiAdmin(p.getTanggalKonfirmasiAdmin());
+            entity.setBuktiPembayaranPath(p.getBuktiPembayaranPath());
         }
 
         return entity;
@@ -142,6 +147,14 @@ public class JPAUserRepository implements UserRepository {
         if (entity.getTanggalSiklusKost() != null) {
             p.setTanggalSiklusKost(entity.getTanggalSiklusKost());
         }
+
+        // Restore payment fields
+        if (entity.getStatusPembayaran() != null) {
+            p.setStatusPembayaran(entity.getStatusPembayaran());
+        }
+        p.setTanggalKirimBukti(entity.getTanggalKirimBukti());
+        p.setTanggalKonfirmasiAdmin(entity.getTanggalKonfirmasiAdmin());
+        p.setBuktiPembayaranPath(entity.getBuktiPembayaranPath());
 
         return p;
     }

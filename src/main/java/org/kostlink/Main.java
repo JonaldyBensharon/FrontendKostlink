@@ -94,9 +94,30 @@ public class Main extends Application {
         regPage.getBtnRegister().setOnAction(e -> {
             String userBaru = regPage.getUsername();
             String passBaru = regPage.getPassword();
+            String confirmPass = regPage.getConfirmPassword();
 
             if (userBaru.isEmpty() || passBaru.isEmpty()) {
                 showAlert("Username dan Password tidak boleh kosong!");
+                return;
+            }
+
+            if (userBaru.length() < 5 || userBaru.length() > 20) {
+                showAlert("Username harus antara 5-20 karakter!");
+                return;
+            }
+
+            if (!userBaru.matches("^[a-zA-Z0-9_]+$")) {
+                showAlert("Username hanya boleh mengandung huruf, angka, dan underscore!");
+                return;
+            }
+
+            if (passBaru.length() < 6 || passBaru.length() > 30) {
+                showAlert("Password harus antara 6-30 karakter!");
+                return;
+            }
+
+            if (!passBaru.equals(confirmPass)) {
+                showAlert("Konfirmasi password tidak cocok!");
                 return;
             }
 
