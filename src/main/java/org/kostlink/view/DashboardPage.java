@@ -23,7 +23,7 @@ public class DashboardPage extends BasePage {
     private boolean isAktif;
     private Label lblUser;
     private Button btnLogout, btnLengkapiData;
-    private Button btnDashboard, btnKontrak, btnTagihan, btnLaporan, btnPengaturan;
+    private Button btnDashboard, btnKontrak, btnTagihan, btnLaporan;
     private Button btnBayarSekarang;
     private VBox contentArea;
     private int tanggalSiklusKost;
@@ -83,16 +83,14 @@ public class DashboardPage extends BasePage {
         btnKontrak = createMenuButton("📄  Kontrak Saya", false);
         btnTagihan = createMenuButton("💰  Riwayat Tagihan", false);
         btnLaporan = createMenuButton("⚠️  Laporan/Keluhan", false);
-        btnPengaturan = createMenuButton("⚙️  Pengaturan", false);
 
         if (!isAktif) {
             btnKontrak.setDisable(true);
             btnTagihan.setDisable(true);
             btnLaporan.setDisable(true);
-            btnPengaturan.setDisable(true);
         }
 
-        menuBox.getChildren().addAll(btnDashboard, btnKontrak, btnTagihan, btnLaporan, btnPengaturan);
+        menuBox.getChildren().addAll(btnDashboard, btnKontrak, btnTagihan, btnLaporan);
         sidebar.getChildren().addAll(logoArea, sep, lblMenu, menuBox);
 
         // ===== CONTENT AREA =====
@@ -475,7 +473,6 @@ public class DashboardPage extends BasePage {
     public Button getBtnKontrak() { return btnKontrak; }
     public Button getBtnTagihan() { return btnTagihan; }
     public Button getBtnLaporan() { return btnLaporan; }
-    public Button getBtnPengaturan() { return btnPengaturan; }
     public Button getBtnLogout() { return btnLogout; }
     public Button getBtnLengkapiData() { return btnLengkapiData; }
     public Label getLblUser() { return lblUser; }

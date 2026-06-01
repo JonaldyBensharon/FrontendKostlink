@@ -26,9 +26,6 @@ public class DashboardController {
         // 4. Menu Sidebar: Laporan/Keluhan
         view.getBtnLaporan().setOnAction(e -> tampilkanHalamanLaporan());
 
-        // 5. Menu Sidebar: Pengaturan
-        view.getBtnPengaturan().setOnAction(e -> tampilkanHalamanPengaturan());
-
         // Tombol Logout
         view.getBtnLogout().setOnAction(e -> Main.backToLogin());
 
@@ -91,17 +88,6 @@ public class DashboardController {
 
         VBox contentArea = view.getContentArea();
         contentArea.getChildren().setAll(laporanPage.getLayout());
-    }
-
-    private void tampilkanHalamanPengaturan() {
-        PengaturanPage pengaturanPage = new PengaturanPage();
-        pengaturanPage.getBtnSimpanSesi().setOnAction(e -> {
-            Alert success = new Alert(Alert.AlertType.INFORMATION, "Pengaturan berhasil diperbarui!");
-            success.show();
-        });
-
-        VBox contentArea = view.getContentArea();
-        contentArea.getChildren().setAll(pengaturanPage.getLayout());
     }
 
     // =========================================================================
