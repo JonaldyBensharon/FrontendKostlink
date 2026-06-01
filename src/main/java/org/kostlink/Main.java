@@ -118,13 +118,8 @@ public class Main extends Application {
             String passBaru = regPage.getPassword();
             String confirmPass = regPage.getConfirmPassword();
 
-            if (userBaru.isEmpty() || passBaru.isEmpty() || confirmPass.isEmpty()) {
-                showAlert("Semua kolom harus diisi!");
-                return;
-            }
-
-            if (!passBaru.equals(confirmPass)) {
-                showAlert("Konfirmasi password tidak sesuai!");
+            if (userBaru.isEmpty() || passBaru.isEmpty()) {
+                showAlert("Username dan Password tidak boleh kosong!");
                 return;
             }
 
