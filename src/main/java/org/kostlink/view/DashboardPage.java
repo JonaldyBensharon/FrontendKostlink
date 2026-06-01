@@ -55,7 +55,7 @@ public class DashboardPage extends BasePage {
         sidebar.setPrefHeight(Double.MAX_VALUE);
         sidebar.setPadding(new Insets(30, 18, 30, 18));
         sidebar.setStyle(
-            "-fx-background-color: linear-gradient(to bottom, #1a0025, #2D033B, #3b0764);"
+                "-fx-background-color: linear-gradient(to bottom, #1a0025, #2D033B, #3b0764);"
         );
 
         // Logo area
@@ -116,8 +116,8 @@ public class DashboardPage extends BasePage {
         topBar.setAlignment(Pos.CENTER_RIGHT);
         topBar.setPadding(new Insets(16, 35, 16, 35));
         topBar.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);"
+                "-fx-background-color: white;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);"
         );
 
         String displayName = (namaAsli.isEmpty()) ? username : namaAsli;
@@ -129,9 +129,9 @@ public class DashboardPage extends BasePage {
         userBadge.setStyle("-fx-background-color: #F5F3FF; -fx-background-radius: 20; -fx-cursor: hand;");
         Label avatarSmall = new Label(displayName.substring(0, 1).toUpperCase());
         avatarSmall.setStyle(
-            "-fx-background-color: linear-gradient(to bottom right, #7C3AED, #5B21B6);" +
-            "-fx-background-radius: 50; -fx-text-fill: white; -fx-font-weight: bold;" +
-            "-fx-min-width: 32; -fx-min-height: 32; -fx-alignment: center; -fx-font-size: 13;"
+                "-fx-background-color: linear-gradient(to bottom right, #7C3AED, #5B21B6);" +
+                        "-fx-background-radius: 50; -fx-text-fill: white; -fx-font-weight: bold;" +
+                        "-fx-min-width: 32; -fx-min-height: 32; -fx-alignment: center; -fx-font-size: 13;"
         );
         lblUser = new Label(displayName);
         lblUser.setFont(Font.font("System", FontWeight.BOLD, 13));
@@ -157,9 +157,9 @@ public class DashboardPage extends BasePage {
             welcomeCard.setAlignment(Pos.CENTER);
             welcomeCard.setPadding(new Insets(60, 50, 60, 50));
             welcomeCard.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 24;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 30, 0, 0, 10);"
+                    "-fx-background-color: white;" +
+                            "-fx-background-radius: 24;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 30, 0, 0, 10);"
             );
             welcomeCard.setMaxWidth(650);
 
@@ -176,13 +176,13 @@ public class DashboardPage extends BasePage {
 
             btnLengkapiData = new Button("LENGKAPI DATA SEKARANG  →");
             String ldBase = "-fx-background-color: linear-gradient(to right, #7C3AED, #A855F7);" +
-                "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15 40;" +
-                "-fx-background-radius: 14; -fx-cursor: hand; -fx-font-size: 15;" +
-                "-fx-effect: dropshadow(gaussian, rgba(124,58,237,0.35), 15, 0, 0, 5);";
+                    "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15 40;" +
+                    "-fx-background-radius: 14; -fx-cursor: hand; -fx-font-size: 15;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(124,58,237,0.35), 15, 0, 0, 5);";
             String ldHover = "-fx-background-color: linear-gradient(to right, #6D28D9, #9333EA);" +
-                "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15 40;" +
-                "-fx-background-radius: 14; -fx-cursor: hand; -fx-font-size: 15;" +
-                "-fx-effect: dropshadow(gaussian, rgba(124,58,237,0.5), 20, 0, 0, 7);";
+                    "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15 40;" +
+                    "-fx-background-radius: 14; -fx-cursor: hand; -fx-font-size: 15;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(124,58,237,0.5), 20, 0, 0, 7);";
             btnLengkapiData.setStyle(ldBase);
             btnLengkapiData.setOnMouseEntered(e -> btnLengkapiData.setStyle(ldHover));
             btnLengkapiData.setOnMouseExited(e -> btnLengkapiData.setStyle(ldBase));
@@ -250,9 +250,9 @@ public class DashboardPage extends BasePage {
             statsRow.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(statsRow, Priority.ALWAYS);
             statsRow.getChildren().addAll(
-                createStatCard("Kamar Anda", "Kamar " + noKamar, "🏠", "#7C3AED", "#F5F3FF"),
-                createStatCard("Status Sewa", txtStatusSewa, "💳", statusColor, "LUNAS".equals(statusPembayaran) ? "#ECFDF5" : "MENUNGGU_VERIFIKASI".equals(statusPembayaran) ? "#FFFBEB" : "#FEF2F2"),
-                createStatCard("Jatuh Tempo", formattedDate, "📅", "#2563EB", "#EFF6FF")
+                    createStatCard("Kamar Anda", "Kamar " + noKamar, "🏠", "#7C3AED", "#F5F3FF"),
+                    createStatCard("Status Sewa", txtStatusSewa, "💳", statusColor, "LUNAS".equals(statusPembayaran) ? "#ECFDF5" : "MENUNGGU_VERIFIKASI".equals(statusPembayaran) ? "#FFFBEB" : "#FEF2F2"),
+                    createStatCard("Jatuh Tempo", formattedDate, "📅", "#2563EB", "#EFF6FF")
             );
 
             // ===== NOTIFIKASI JATUH TEMPO =====
@@ -283,9 +283,9 @@ public class DashboardPage extends BasePage {
                     notifikasiArea.setMaxWidth(Double.MAX_VALUE);
                     notifikasiArea.setPadding(new Insets(14, 18, 14, 18));
                     notifikasiArea.setStyle(
-                        "-fx-background-color: " + notifBg + ";" +
-                        "-fx-border-color: " + notifBorder + ";" +
-                        "-fx-background-radius: 12; -fx-border-radius: 12;"
+                            "-fx-background-color: " + notifBg + ";" +
+                                    "-fx-border-color: " + notifBorder + ";" +
+                                    "-fx-background-radius: 12; -fx-border-radius: 12;"
                     );
 
                     HBox notifContent = new HBox(10);
@@ -305,9 +305,9 @@ public class DashboardPage extends BasePage {
             tableArea.setMaxWidth(Double.MAX_VALUE);
             tableArea.setPadding(new Insets(25));
             tableArea.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 16;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 4);"
+                    "-fx-background-color: white;" +
+                            "-fx-background-radius: 16;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 4);"
             );
 
             Label lblTable = new Label("📋  Tagihan & Riwayat Pembayaran");
@@ -407,7 +407,7 @@ public class DashboardPage extends BasePage {
             // ===== FASILITAS KOST =====
             VBox fasilitasSection = createFasilitasKost();
 
-            // Susun konten
+            // Susun konten secara berurutan ke dalam dashboard
             contentArea.getChildren().addAll(lblGreeting, lblSubGreeting);
             if (notifikasiArea != null) contentArea.getChildren().add(notifikasiArea);
             contentArea.getChildren().addAll(statsRow, heroBanner, tableArea, fasilitasSection);
@@ -435,7 +435,6 @@ public class DashboardPage extends BasePage {
     }
 
     public void setActiveButton(Button btn) {
-        // Reset previous active button
         if (currentActiveBtn != null && currentActiveBtn != btn) {
             currentActiveBtn.setStyle(MENU_BASE_STYLE);
         }
@@ -449,11 +448,11 @@ public class DashboardPage extends BasePage {
         HBox.setHgrow(card, Priority.ALWAYS);
         card.setMaxWidth(Double.MAX_VALUE);
         card.setStyle(
-            "-fx-background-color: " + bgColor + ";" +
-            "-fx-background-radius: 14;" +
-            "-fx-border-color: " + bgColor + ";" +
-            "-fx-border-radius: 14;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);"
+                "-fx-background-color: " + bgColor + ";" +
+                        "-fx-background-radius: 14;" +
+                        "-fx-border-color: " + bgColor + ";" +
+                        "-fx-border-radius: 14;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);"
         );
 
         Label lblIcon = new Label(icon);
@@ -465,21 +464,19 @@ public class DashboardPage extends BasePage {
         lblV.setStyle("-fx-text-fill: " + accentColor + ";");
         card.getChildren().addAll(lblIcon, lblT, lblV);
 
-        // Hover effect
         String cardBaseStyle = card.getStyle();
         String cardHoverStyle = "-fx-background-color: " + bgColor + ";" +
-            "-fx-background-radius: 14;" +
-            "-fx-border-color: " + accentColor + ";" +
-            "-fx-border-radius: 14;" +
-            "-fx-border-width: 1.5;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 14, 0, 0, 4);";
+                "-fx-background-radius: 14;" +
+                "-fx-border-color: " + accentColor + ";" +
+                "-fx-border-radius: 14;" +
+                "-fx-border-width: 1.5;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 14, 0, 0, 4);";
         card.setOnMouseEntered(e -> card.setStyle(cardHoverStyle));
         card.setOnMouseExited(e -> card.setStyle(cardBaseStyle));
 
         return card;
     }
 
-    // --- GETTERS ---
     public Button getBtnDashboard() { return btnDashboard; }
     public Button getBtnKontrak() { return btnKontrak; }
     public Button getBtnTagihan() { return btnTagihan; }
@@ -491,9 +488,6 @@ public class DashboardPage extends BasePage {
     public String getNoKamar() { return noKamar; }
     public Button getBtnBayarSekarang() { return btnBayarSekarang; }
     public int getTanggalSiklusKost() { return tanggalSiklusKost; }
-    // =========================================================================
-    // VISUAL SECTIONS: Hero Banner, Galeri Kamar, Fasilitas
-    // =========================================================================
 
     private StackPane createHeroBanner() {
         StackPane banner = new StackPane();
@@ -503,27 +497,23 @@ public class DashboardPage extends BasePage {
         banner.setMaxHeight(200);
         banner.setClip(createRoundedClip(banner, 18));
         banner.setStyle(
-            "-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2, #f093fb);" +
-            "-fx-background-radius: 18;"
+                "-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2, #f093fb);" +
+                        "-fx-background-radius: 18;"
         );
 
-        // Decorative illustration canvas (right side only, positioned absolute)
         Canvas canvas = new Canvas(350, 200);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // Decorative clouds
         gc.setFill(Color.rgb(255, 255, 255, 0.12));
         gc.fillOval(20, 20, 80, 28);
         gc.fillOval(45, 12, 55, 24);
         gc.fillOval(220, 15, 70, 22);
 
-        // Building silhouette (main kost building)
         gc.setFill(Color.rgb(255, 255, 255, 0.18));
         gc.fillRect(80, 55, 110, 145);
         gc.fillRect(200, 80, 85, 120);
         gc.fillRect(55, 75, 50, 125);
 
-        // Roof triangles
         gc.setFill(Color.rgb(255, 255, 255, 0.22));
         double[] roofX1 = {70, 135, 200};
         double[] roofY1 = {55, 30, 55};
@@ -532,7 +522,6 @@ public class DashboardPage extends BasePage {
         double[] roofY2 = {80, 58, 80};
         gc.fillPolygon(roofX2, roofY2, 3);
 
-        // Windows on buildings
         gc.setFill(Color.rgb(255, 255, 200, 0.45));
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 2; col++) {
@@ -545,11 +534,9 @@ public class DashboardPage extends BasePage {
             }
         }
 
-        // Door
         gc.setFill(Color.rgb(255, 255, 255, 0.3));
         gc.fillRoundRect(123, 162, 24, 38, 4, 4);
 
-        // Trees
         gc.setFill(Color.rgb(255, 255, 255, 0.1));
         gc.fillOval(295, 110, 40, 60);
         gc.fillOval(305, 95, 30, 45);
@@ -559,13 +546,11 @@ public class DashboardPage extends BasePage {
         gc.fillOval(22, 118, 28, 38);
         gc.fillRect(32, 170, 5, 30);
 
-        // Small stars
         gc.setFill(Color.rgb(255, 255, 255, 0.25));
         gc.fillOval(160, 18, 4, 4);
         gc.fillOval(260, 35, 3, 3);
         gc.fillOval(110, 40, 5, 5);
 
-        // Text overlay — left side, padded well within bounds
         VBox textOverlay = new VBox(6);
         textOverlay.setAlignment(Pos.CENTER_LEFT);
         textOverlay.setPadding(new Insets(25, 20, 25, 35));
@@ -575,10 +560,7 @@ public class DashboardPage extends BasePage {
         lblPromo.setFont(Font.font("System", FontWeight.BOLD, 10));
         lblPromo.setTextFill(Color.rgb(255, 255, 255, 0.9));
         lblPromo.setPadding(new Insets(3, 10, 3, 10));
-        lblPromo.setStyle(
-            "-fx-background-color: rgba(255,255,255,0.18);" +
-            "-fx-background-radius: 16;"
-        );
+        lblPromo.setStyle("-fx-background-color: rgba(255,255,255,0.18); -fx-background-radius: 16;");
 
         Label lblBannerTitle = new Label("Kost Nyaman, Aman &\nStrategis di Pusat Kota");
         lblBannerTitle.setFont(Font.font("System", FontWeight.BOLD, 22));
@@ -595,14 +577,13 @@ public class DashboardPage extends BasePage {
 
         HBox tagRow = new HBox(6);
         tagRow.getChildren().addAll(
-            createBannerTag("\ud83c\udfe0 Fully Furnished"),
-            createBannerTag("\ud83d\udcf6 WiFi Gratis"),
-            createBannerTag("\ud83c\udd7f\ufe0f Free Parking")
+                createBannerTag("🏠 Fully Furnished"),
+                createBannerTag("📶 WiFi Gratis"),
+                createBannerTag("🅿️ Free Parking")
         );
 
         textOverlay.getChildren().addAll(lblPromo, lblBannerTitle, lblBannerDesc, tagRow);
 
-        // Layout: text left, illustration right
         HBox bannerContent = new HBox();
         bannerContent.setMaxWidth(Double.MAX_VALUE);
         bannerContent.setMaxHeight(200);
@@ -611,8 +592,6 @@ public class DashboardPage extends BasePage {
         bannerContent.setAlignment(Pos.CENTER_LEFT);
 
         banner.getChildren().add(bannerContent);
-
-        // Shadow effect on entire banner
         banner.setEffect(new DropShadow(15, 0, 4, Color.rgb(0, 0, 0, 0.12)));
 
         return banner;
@@ -632,22 +611,16 @@ public class DashboardPage extends BasePage {
         tag.setFont(Font.font("System", FontWeight.BOLD, 10));
         tag.setTextFill(Color.WHITE);
         tag.setPadding(new Insets(4, 10, 4, 10));
-        tag.setStyle(
-            "-fx-background-color: rgba(255,255,255,0.2);" +
-            "-fx-background-radius: 14;" +
-            "-fx-border-color: rgba(255,255,255,0.3);" +
-            "-fx-border-radius: 14;"
-        );
+        tag.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 14; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 14;");
         return tag;
     }
 
-
     private VBox createFasilitasKost() {
-        VBox section = new VBox(16);
+        VBox section = new VBox(24);
         section.setMaxWidth(Double.MAX_VALUE);
-        section.setPadding(new Insets(0, 0, 20, 0));
+        section.setPadding(new Insets(10, 0, 20, 0));
 
-        // Section header
+        // ===== 1. SECTION HEADER =====
         HBox headerRow = new HBox(10);
         headerRow.setAlignment(Pos.CENTER_LEFT);
         Label headerIcon = new Label("🏢");
@@ -661,37 +634,42 @@ public class DashboardPage extends BasePage {
         headerTexts.getChildren().addAll(lblSection, lblSubSection);
         headerRow.getChildren().addAll(headerIcon, headerTexts);
 
-        // Facilities grid (2 rows x 3 cols)
+        // ===== 2. KARTU FASILITAS BARIS 1 =====
         HBox row1 = new HBox(14);
         row1.setMaxWidth(Double.MAX_VALUE);
         row1.getChildren().addAll(
-            createFasilitasCard("📶", "WiFi Super Cepat", "Internet fiber optic hingga 100 Mbps", "#3B82F6", "#EFF6FF"),
-            createFasilitasCard("❄️", "AC Setiap Kamar", "Pendingin ruangan untuk kenyamanan", "#06B6D4", "#ECFEFF"),
-            createFasilitasCard("🔒", "Keamanan 24 Jam", "CCTV & satpam jaga sepanjang hari", "#8B5CF6", "#F5F3FF")
+                createFasilitasCard("📶", "WiFi Super Cepat", "Internet fiber optic hingga 100 Mbps", "#3B82F6", "#EFF6FF"),
+                createFasilitasCard("❄️", "AC Setiap Kamar", "Pendingin ruangan untuk kenyamanan", "#06B6D4", "#ECFEFF"),
+                createFasilitasCard("🔒", "Keamanan 24 Jam", "CCTV & satpam jaga sepanjang hari", "#8B5CF6", "#F5F3FF")
         );
 
+        // ===== 3. KARTU FASILITAS BARIS 2 =====
         HBox row2 = new HBox(14);
         row2.setMaxWidth(Double.MAX_VALUE);
         row2.getChildren().addAll(
-            createFasilitasCard("🅿️", "Parkir Luas", "Area parkir motor & mobil memadai", "#F59E0B", "#FFFBEB"),
-            createFasilitasCard("🧹", "Cleaning Service", "Kebersihan area umum setiap hari", "#10B981", "#ECFDF5"),
-            createFasilitasCard("🍽️", "Dapur Bersama", "Fasilitas memasak lengkap & bersih", "#EF4444", "#FEF2F2")
+                createFasilitasCard("🅿️", "Parkir Luas", "Area parkir motor & mobil memadai", "#F59E0B", "#FFFBEB"),
+                createFasilitasCard("🧹", "Cleaning Service", "Kebersihan area umum setiap hari", "#10B981", "#ECFDF5"),
+                createFasilitasCard("🍽️", "Dapur Bersama", "Fasilitas memasak lengkap & bersih", "#EF4444", "#FEF2F2")
         );
 
-        section.getChildren().addAll(headerRow, row1, row2);
+        // ===== 4. PANGGIL GALERI FOTO (Sudah termasuk Judul "Review Kamar" & Animasi Smooth) =====
+        VBox reviewKamarSection = GalleryComponent.createPhotoGallerySection();
+
+        // ===== 5. SATUKAN KE KONTEN UTAMA DASHBOARD =====
+        section.getChildren().addAll(headerRow, row1, row2, reviewKamarSection);
         return section;
     }
 
     private VBox createFasilitasCard(String icon, String title, String desc,
-                                      String accentColor, String bgColor) {
+                                     String accentColor, String bgColor) {
         VBox card = new VBox(10);
         card.setPadding(new Insets(20));
         card.setAlignment(Pos.TOP_LEFT);
         HBox.setHgrow(card, Priority.ALWAYS);
         card.setMaxWidth(Double.MAX_VALUE);
         String cardBase = "-fx-background-color: " + bgColor + ";" +
-            "-fx-background-radius: 14;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);";
+                "-fx-background-radius: 14;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);";
         card.setStyle(cardBase);
 
         // Icon circle
@@ -700,9 +678,9 @@ public class DashboardPage extends BasePage {
         lblIcon.setAlignment(Pos.CENTER);
         lblIcon.setPrefSize(52, 52);
         lblIcon.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-background-radius: 50;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 50;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
         );
 
         Label lblTitle = new Label(title);
@@ -718,11 +696,11 @@ public class DashboardPage extends BasePage {
 
         // Hover
         String cardHover = "-fx-background-color: " + bgColor + ";" +
-            "-fx-background-radius: 14;" +
-            "-fx-border-color: " + accentColor + ";" +
-            "-fx-border-radius: 14;" +
-            "-fx-border-width: 1.5;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 14, 0, 0, 4);";
+                "-fx-background-radius: 14;" +
+                "-fx-border-color: " + accentColor + ";" +
+                "-fx-border-radius: 14;" +
+                "-fx-border-width: 1.5;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 14, 0, 0, 4);";
         card.setOnMouseEntered(e -> {
             card.setStyle(cardHover);
             card.setTranslateY(-3);
