@@ -1,9 +1,13 @@
-package org.kostlink.view;
+package org.kostlink.controller;
 
 import org.kostlink.Main;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.VBox;
+import org.kostlink.view.DashboardPage;
+import org.kostlink.view.KontrakPage;
+import org.kostlink.view.LaporanPage;
+import org.kostlink.view.TagihanPage;
 
 public class DashboardController {
     private DashboardPage view;
@@ -38,11 +42,6 @@ public class DashboardController {
             tampilkanHalamanLaporan();
         });
 
-        // 5. Menu Sidebar: Pengaturan
-        view.getBtnPengaturan().setOnAction(e -> {
-            view.setActiveButton(view.getBtnPengaturan());
-            tampilkanHalamanPengaturan();
-        });
 
         // Tombol Logout
         view.getBtnLogout().setOnAction(e -> Main.backToLogin());
@@ -106,17 +105,6 @@ public class DashboardController {
 
         VBox contentArea = view.getContentArea();
         contentArea.getChildren().setAll(laporanPage.getLayout());
-    }
-
-    private void tampilkanHalamanPengaturan() {
-        PengaturanPage pengaturanPage = new PengaturanPage();
-        pengaturanPage.getBtnSimpanSesi().setOnAction(e -> {
-            Alert success = new Alert(Alert.AlertType.INFORMATION, "Pengaturan berhasil diperbarui!");
-            success.show();
-        });
-
-        VBox contentArea = view.getContentArea();
-        contentArea.getChildren().setAll(pengaturanPage.getLayout());
     }
 
     // =========================================================================

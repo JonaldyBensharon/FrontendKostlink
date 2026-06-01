@@ -11,7 +11,9 @@ import org.kostlink.model.Role;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JPAUserRepository implements UserRepository {
 
     @Override

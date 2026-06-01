@@ -30,6 +30,19 @@ public class PenghuniService {
         if (namaLengkap == null || namaLengkap.trim().isEmpty()) return;
         if (nomorKamar == null || nomorKamar.trim().isEmpty()) return;
 
+        // CEK APAKAH NOMOR KAMAR SUDAH DIPAKAI
+        boolean kamarSudahDipakai = userRepository.findAll().stream()
+                .filter(user -> user instanceof Penghuni)
+                .map(user -> (Penghuni) user)
+                .anyMatch(p ->
+                        nomorKamar.trim().equals(p.getNomorKamar())
+                                && !p.getUsername().equals(penghuni.getUsername())
+                );
+
+        if (kamarSudahDipakai) {
+            throw new RuntimeException("Nomor kamar sudah digunakan!");
+        }
+
         penghuni.setNamaLengkap(namaLengkap.trim());
         penghuni.setNomorKamar(nomorKamar.trim());
         penghuni.setStatusAktif(true);
@@ -37,7 +50,6 @@ public class PenghuniService {
                 Math.min(LocalDate.now().getDayOfMonth(), 28)
         );
 
-        // Simpan ke database
         userRepository.save(penghuni);
     }
 

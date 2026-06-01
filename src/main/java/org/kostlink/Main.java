@@ -5,6 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.kostlink.controller.AdminDashboardController;
+import org.kostlink.controller.DashboardController;
 import org.kostlink.model.*;
 import org.kostlink.service.ComplaintService;
 import org.kostlink.view.*;
@@ -15,19 +17,23 @@ import org.kostlink.service.UserService;
 import org.kostlink.service.PenghuniService;
 import org.kostlink.config.JPAUtil;
 import org.h2.tools.Server;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 
 public class Main extends Application {
 
     private static Stage stage;
     private static Scene mainScene;
 
+    // Integrasi SpringBoot
+    private ConfigurableApplicationContext springContext;
+
     // Penambahan AppStateService
     private static final AppStateService appState =
             AppStateService.getInstance();
 
     // Penambahan UserService untuk memungkinkan integrasi backend
-    private static final UserService userService =
-            UserService.getInstance();
+    private static UserService userService;
 
     // Penambahan PenghuniService
     private static final PenghuniService penghuniService =
@@ -52,6 +58,22 @@ public class Main extends Application {
 
         showLogin();
         stage.show();
+    }
+
+    @Override
+    public void init() {
+        springContext = new SpringApplicationBuilder(KostLinkSpringApp.class)
+                .headless(false)
+                .run();
+
+        userService = springContext.getBean(UserService.class);
+    }
+
+    @Override
+    public void stop() {
+        if (springContext != null) {
+            springContext.close();
+        }
     }
 
     public static void setRoot(Pane layoutPane, String title) {
@@ -173,13 +195,25 @@ public class Main extends Application {
 
                 String noKamar = formPage.getNoKamar() == null ? "" : formPage.getNoKamar();
 
-                penghuniService.lengkapiData(
-                        penghuni,
-                        formPage.getNamaLengkap(),
-                        noKamar
-                );
+                try {
 
-                showDashboard();
+                    penghuniService.lengkapiData(
+                            penghuni,
+                            formPage.getNamaLengkap(),
+                            noKamar
+                    );
+
+                    showDashboard();
+
+                } catch (RuntimeException ex) {
+
+                    Alert alert = new Alert(
+                            Alert.AlertType.WARNING,
+                            ex.getMessage()
+                    );
+
+                    alert.showAndWait();
+                }
             }
         });
         setRoot(formPage.getLayout(), "KostLink - Lengkapi Data");
@@ -371,5 +405,6 @@ public class Main extends Application {
             e.printStackTrace();
         }
 
-        launch(args); }
+        launch(args);
+    }
 }
