@@ -1,13 +1,14 @@
 package org.kostlink.repository;
 
+import org.springframework.stereotype.Repository;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryComplaintRepository
-        implements ComplaintRepository {
+@Repository
+public class InMemoryComplaintRepository implements ComplaintRepository {
 
-    private final List<String> keluhanList =
-            new ArrayList<>();
+    private final List<String> keluhanList = new ArrayList<>();
 
     @Override
     public void save(String keluhan) {

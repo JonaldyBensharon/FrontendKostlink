@@ -3,20 +3,17 @@ package org.kostlink.service;
 import org.kostlink.model.Penghuni;
 import org.kostlink.repository.JPAUserRepository;
 import org.kostlink.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+@Service
 public class PenghuniService {
 
-    private static final PenghuniService instance =
-            new PenghuniService();
+    private final UserRepository userRepository;
 
-    private final UserRepository userRepository = new JPAUserRepository();
-
-    private PenghuniService() {}
-
-    public static PenghuniService getInstance() {
-        return instance;
+    public PenghuniService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     // FORMULIR untuk aktivasi akun

@@ -2,18 +2,14 @@ package org.kostlink.service;
 
 import org.kostlink.model.User;
 
-public class AppStateService {
+import org.springframework.stereotype.Component;
 
-    private static final AppStateService instance = new AppStateService();
+@Component
+public class AppStateService {
 
     private User currentUser;
 
-    private AppStateService() {
-
-    }
-
-    public static AppStateService getInstance() {
-        return instance;
+    public AppStateService() {
     }
 
     // =========================
