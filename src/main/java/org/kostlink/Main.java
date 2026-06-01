@@ -5,6 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.kostlink.controller.AdminDashboardController;
+import org.kostlink.controller.DashboardController;
 import org.kostlink.model.*;
 import org.kostlink.service.ComplaintService;
 import org.kostlink.view.*;
