@@ -19,24 +19,11 @@ public class UserService {
         seedDefaultUsers();
     }
 
-    // DEFAULT DATA
+    // Data pemilik kos
     private void seedDefaultUsers() {
 
-        if (!userRepository.existsByUsername("admin")) {
-            userRepository.save(new PemilikKos("admin", "admin123"));
-        }
-
-        if (!userRepository.existsByUsername("zaskiah")) {
-            userRepository.save(new PemilikKos("zaskiah", "123"));
-        }
-
-        if (!userRepository.existsByUsername("user")) {
-            Penghuni defaultPenghuni = new Penghuni("user", "123");
-            defaultPenghuni.setNamaLengkap("Penghuni Demo");
-            defaultPenghuni.setNomorKamar("A01");
-            defaultPenghuni.setStatusAktif(true);
-
-            userRepository.save(defaultPenghuni);
+        if (!userRepository.existsByUsername("administrator")) {
+            userRepository.save(new PemilikKos("administrator", "adminKostlink"));
         }
     }
 
