@@ -2,11 +2,72 @@
 
 Aplikasi ini merupakan suatu sistem terpadu yang bertujuan untuk mendukung kegiatan operasional dari suatu kos.
 
+## Cara Menjalankan Aplikasi KostLink
+
+### Melalui Terminal
+   Untuk dapat menjalankan aplikasi KostLink melalui terminal, dapat diikuti langkah berikut.
+1. Pastikan Git sudah terpasang pada perangkat Anda
+   
+   `git --version`
+
+   Dapat dijalankan baris perintah tersebut untuk memastikan versi git yang terpasang pada perangkat Anda.
+   
+2. Pastikan Java sudah terintegrasi pada perangkat anda
+
+   `java -version`
+
+   Dapat dijalankan baris perintah tersebut untuk memeriksa versi Java yang terpasang pada perangkat Anda.
+   
+4. Salin repositori KostLink pada perangkat Anda
+
+   Anda dapat masuk dahulu ke folder yang ingin dijadikan sebagai tempat menyimpan folder proyek KostLink, lalu jalankan perintah berikut.
+
+   `git clone https://github.com/Zaskiah-Angreani/Kostlink`
+   
+5. Masuk ke folder proyek KostLink.
+   
+   Anda dapat menjalankan baris perintah berikut untuk masuk ke root proyek KostLink.
+   
+   `cd KostLink`
+   
+7. Bersihkan proses yang Masih Belum Tertutup dengan Utuh
+
+   Sebelum dapat menjalankan aplikasi, pastikan bahwa tidak ada proses Java yang belum tertutup dengan utuh. Untuk membersihkan proses tersebut, dapat dijalankan baris kode berikut.
+   
+   `taskkill /F /IM java.exe`
+
+   Direkomendasikan agar proses pembersihan ini dilakukan setiap kali ingin menjalankan aplikasi.
+   
+8. Jalankan aplikasi KostLink melalui Maven Wrapper
+   
+   Untuk dapat menjalankan aplikasi, digunakan wrapper untuk memastikan semua pihak menggunakan versi Maven yang konsisten. Dapat dijalankan perintah berikut untuk memulai aplikasi KostLink.
+
+   `.\mvnw.cmd clean javafx:run`
+
+   Saat menjalankan aplikasi pertama kali, akan terdapat proses pengunduhan dependensi dan menyiapkan environment build. Silakan tunggu proses ini sampai selesai dan jangan hentikan proses di tengah jalan.
+   
+10. Aplikasi KostLink dapat digunakan
+
+    Setelah menjalankan baris perintah dan proses sebelumnya, jendela aplikasi KostLink akan tampil dan pengguna sudah dapat menggunakan aplikasi.
+
 ## Pengguna dari KostLink
 
 Aplikasi ini dapat digunakan oleh pihak yang menjadi bagian dari ekosistem KostLink, yaitu
 - Pemilik kos, yang merupakan pihak yang memiliki dan mengelola KostLink;
 - Penghuni kos,  yang merupakan pihak yang menghuni serta menyewa suatu kamar pada KostLink.
+
+## Cara Masuk sebagai Pemilik Kos
+
+Aplikasi ini telah mendefinisikan suatu akun Pemilik Kos yang dapat digunakan oleh pengguna untuk mengelola serta memanajemen kegiatan operasional KostLink.
+
+Untuk dapat masuk sebagai Pemilik Kos, pengguna dapat memasukkan username dan password berikut pada laman login.
+- Username
+
+  `administrator`
+  
+- Password
+
+  `adminKostlink`
 
 ## Layanan yang Disediakan oleh KostLink
 
