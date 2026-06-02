@@ -31,10 +31,7 @@ public class Main extends Application {
     // Penambahan AppStateService
     private static AppStateService appState;
 
-    // Penambahan UserService untuk memungkinkan integrasi backend
     private static UserService userService;
-
-    // Penambahan PenghuniService
     private static PenghuniService penghuniService;
     private static ComplaintService complaintService;
 

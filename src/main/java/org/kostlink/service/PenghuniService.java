@@ -1,7 +1,6 @@
 package org.kostlink.service;
 
 import org.kostlink.model.Penghuni;
-import org.kostlink.repository.JPAUserRepository;
 import org.kostlink.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -115,9 +114,7 @@ public class PenghuniService {
                 : null;
     }
 
-    // =========================================================================
     // ADMIN QUERIES: Ambil semua penghuni aktif dari database
-    // =========================================================================
     public java.util.List<Penghuni> findAllAktifPenghuni() {
         java.util.List<Penghuni> result = new java.util.ArrayList<>();
         for (org.kostlink.model.User u : userRepository.findAll()) {
